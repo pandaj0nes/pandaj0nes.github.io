@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<title>Changing table content dynamically with DOM methods</title>
+<script type="text/javascript">
+function changeContent(frm)
+{
+if (! document.getElementById)
+{
+alert("Sorry, your browser doesn't support this.");
+return;
+}
+
+/* check to make sure we have everything we need. */
+var R = frm.elements["row"].value;
+var C = frm.elements["col"].value;
+var newVal = frm.elements["newVal"].value;
+if (!R || isNaN(R))
+{
+alert("Row must be a number.");
+return;
+}
+if (!C || isNaN(C))
+{
+alert("Column must be a number.");
+return;
+}
+if (! newVal || newVal == "")
+{
+alert("You forgot to give a new value.");
+return;
+}
+
+/* row and column indexes are 0 based, so subtract one from the
+logical values of 1-4 to make it 0-3 */
+R--;
+C--;
+
+/* for this example, we are using just plain text in the table cells
+- this gets a little more complicated if other things are in the table
+cells or if the text length is long enough to span multiple nodes */
+var row = document.getElementById("tb").getElementsByTagName("tr")
+[R];
+var cell = row.getElementsByTagName("td")[C];
+var newCell = document.createElement("td");
+row.replaceChild(newCell, cell);
+newCell.appendChild(document.createTextNode(newVal ));
+return;
+}
+</script>
+</head>
+
+<body>
+<p>A 4 by 4 table...</p>
+<table id="t1" border="1" cellpadding="5" cellspacing="0">
+<tbody id="tb">
+<tr>
+<td><p>R1 C1</p></td>
+<td><p>R1 C2</p></td>
+<td><p>R1 C3</p></td>
+<td><p>R1 C4</p></td>
+</tr>
+<tr>
+<td><p>R2 C1</p></td>
+<td><p>R2 C2</p></td>
+<td><p>R2 C3</p></td>
+<td><p>R2 C4</p></td>
+</tr>
+<tr>
+<td><p>R3 C1</p></td>
+<td><p>R3 C2</p></td>
+<td><p>R3 C3</p></td>
+<td><p>R3 C4</p></td>
+</tr>
+<tr>
+<td><p>R4 C1</p></td>
+<td><p>R4 C2</p></td>
+<td><p>R4 C3</p></td>
+<td><p>R4 C4</p></td>
+</tr>
+</tbody>
+</table>
+<form id="f1" name="f1">
+<p>Replace which cell?</p>
+<p>
+Row (1-4): <input type="text" name="row" size="3"><br>
+Column (1-4): <input type="text" name="col" size="3">
+</p>
+<p>New value: <input type="text" name="newVal"></p>
+<input type="button" name="b1" value="Try It" onClick="changeContent
+(this.form)">
+</form>
+</body>
+</html>

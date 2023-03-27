@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+
+<script language=javascript type="text/javascript">
+    <!-- Hide from older browsers
+
+        newInfo = new Array
+        newInfo[1] = "AMD Aflon"
+        newInfo[2] = "Intel dual core"
+        newInfo[3] = "Kingston"
+        newInfo[4] = "othermemory"
+        newInfo[5] = "We do it with style"
+        newInfo[6] = "Because we care" 
+
+    function showInfo(thisNew) {
+        document.menu.value = newInfo[thisNew]
+    } 
+	function showInfo(thisNew) {
+        document.menu2.value = newInfo[thisNew]
+    } 
+	
+
+// End hiding -->
+</script>
+</head>
+
+<body>
+
+<b>Processors</b>
+<p>
+<a href="javascript:showInfo(1)">AMD Aflon</a>
+</p>
+<p>
+<a href="javascript:showInfo(2)">Intel dual core</a>
+</p>
+
+<b>Memory</b>
+<p>
+<a href="javascript:showInfo(3)">Kingston</a>
+</p>
+<p>
+<a href="javascript:showInfo(4)">othermemory</a>
+</p>
+
+
+<form name="menu">
+<textarea rows="1" cols="15" name="menuInfo" readonly wrap>
+
+</textarea>
+</form>
+
+<form name="menu2">
+<textarea rows="1" cols="15" name="menuInfo" readonly wrap>
+
+</textarea>
+</form>
+
+
+
+
+<br /><br />
+Clicked piece of hardware:<input type="text" id="field1">
+
+<br /><br />
+
+
+<table width="200" border="1">
+  <tr>
+    <td>Memory</td>
+    <td><input type="text" id="field2"></td>
+  </tr>
+  <tr>
+    <td>Hard Drive</td>
+    <td><input type="text" id="field2"></td>
+  </tr>
+  <tr>
+    <td>Motherboard</td>
+    <td><input type="text" id="field2"></td>
+  </tr>
+  <tr>
+    <td>CPU</td>
+    <td><input type="text" id="field2"></td>
+  </tr>
+  <tr>
+    <td>CD/DVD</td>
+    <td><input type="text" id="field2"></td>
+  </tr>
+  <tr>
+    <td>Cases</td>
+    <td><input type="text" id="field2"></td>
+  </tr>
+</table>
+
+Add clicked piece of hardware to your list.
+<br />
+<button onclick="document.getElementById('field2').value=
+document.getElementById('field1').value">Copy Text</button>
+
+
+</body>
+</html>

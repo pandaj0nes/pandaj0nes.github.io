@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="selectparts.js"></script>
+<title>Parts box</title>
+</head>
+
+<body>
+
+<form> 
+Select a User:
+<select name="users" onchange="showPart(this.value)">
+<option value="1">Memory</option>
+<option value="2">Video cards</option>
+<option value="3">Processors</option>
+</select>
+</form>
+
+<form>
+<input name="Processor" value="Processor" type="button" onclick="showPart(this.value)"/>
+<input name="Motherboard" value="Motherboard" type="button" onclick="showPart(this.value)"/>
+</form>
+
+<form>
+<input name="Processor" value="Processor" type="hidden" onclick="showPart(this.value)"/>
+</form>
+
+
+
+
+<p>
+<div id="txtHint"><b>User info will be listed here.</b></div>
+</p>
+
+
+</body>
+</html>
+

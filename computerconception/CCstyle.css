@@ -1,0 +1,19 @@
+@charset "utf-8";
+/* CSS Document */
+
+bodycc {
+  margin-left: 10%; margin-right: 10%;
+  color: black; background: white;
+}
+
+
+header {
+/* Set the width dynamically depending on the width of the browser window */
+width:100%;
+/* dont enlarge the image more, than its initial resolution */
+max-width:1200px;
+max-height:200px;
+/* Set the height dynamically depending on the image's current width, keeping the aspect ratio */
+height:auto;
+
+}
