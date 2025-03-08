@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Ski Shredding!</title>
+<title>Ski Shredders!</title>
 <style>
   body {
     margin: 0;
     overflow: hidden;
-    background: white;
+    background: url('mountains.png') no-repeat center center fixed;
+    background-size: cover;
   }
   #gameCanvas {
     width: 100%;
@@ -23,11 +24,22 @@
     border-radius: 10px;
     text-align: center;
   }
+  #characterSelect h2 {
+    font-size: 36px;
+    margin-bottom: 20px;
+  }
   #characterSelect button {
     padding: 10px 20px;
     margin: 10px;
     font-size: 16px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+  #characterSelect img {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
   }
   #gameOver {
     position: absolute;
@@ -49,15 +61,15 @@
 </head>
 <body>
   <div id="characterSelect">
-    <h2>Choose Your Character</h2>
-    <button onclick="startGame('snowboarder.png')">Snowboarder</button>
-    <button onclick="startGame('pandaboarder.png')">Panda Jones</button>
-    <button onclick="startGame('astroboarder.png')">Astronaut</button>
-    <button onclick="startGame('ralphboarder.png')">Ralphie</button>
-    <button onclick="startGame('eriboarder.png')">Eri</button>
-    <button onclick="startGame('mattboarder.png')">Dustin Jones</button>
-    <button onclick="startGame('claytonboarder.png')">Yeenon</button>
-    <button onclick="startGame('kolbyboarder.png')">HulkSmersh</button>
+    <h2>Ski Shredders!</h2>
+    <button onclick="startGame('snowboarder.png')"><img src="snowboarder.png" alt="Snowboarder">Snowboarder</button>
+    <button onclick="startGame('pandaboarder.png')"><img src="pandaboarder.png" alt="Panda Jones">Panda Jones</button>
+    <button onclick="startGame('astroboarder.png')"><img src="astroboarder.png" alt="Astronaut">Astronaut</button>
+    <button onclick="startGame('ralphboarder.png')"><img src="ralphboarder.png" alt="Ralphie">Ralphie</button>
+    <button onclick="startGame('eriboarder.png')"><img src="eriboarder.png" alt="Eri">Eri</button>
+    <button onclick="startGame('mattboarder.png')"><img src="mattboarder.png" alt="Dustin Jones">Dustin Jones</button>
+    <button onclick="startGame('claytonboarder.png')"><img src="claytonboarder.png" alt="Yeenon">Yeenon</button>
+    <button onclick="startGame('kolbyboarder.png')"><img src="kolbyboarder.png" alt="HulkSmersh">HulkSmersh</button>
   </div>
   <canvas id="gameCanvas"></canvas>
   <div id="gameOver" style="display: none;">
@@ -131,26 +143,28 @@
     function generateObstacles() {
       setInterval(() => {
         if (!gameRunning) return;
-        let type = Math.random();
-        let obstacleType;
-        if (type < 0.33) {
-          obstacleType = 'tree';
-        } else if (type < 0.66) {
-          obstacleType = 'tree2';
-        } else {
-          obstacleType = 'treeAspen';
+        if (Math.random() < 0.8) { // 80% chance to generate an obstacle
+          let type = Math.random();
+          let obstacleType;
+          if (type < 0.33) {
+            obstacleType = 'tree';
+          } else if (type < 0.66) {
+            obstacleType = 'tree2';
+          } else {
+            obstacleType = 'treeAspen';
+          }
+          let size = 60 + Math.random() * 40; // Random size between 60 and 100
+          if (obstacleType === 'treeAspen') {
+            size *= 1.3; // Make aspen trees 30% larger
+          }
+          obstacles.push({
+            x: canvas.width,
+            y: 180 + Math.random() * (canvas.height - 220),
+            width: size,
+            height: size,
+            type: obstacleType
+          });
         }
-        let size = 60 + Math.random() * 40; // Random size between 60 and 100
-        if (obstacleType === 'treeAspen') {
-          size *= 1.3; // Make aspen trees 30% larger
-        }
-        obstacles.push({
-          x: canvas.width,
-          y: 180 + Math.random() * (canvas.height - 220),
-          width: size,
-          height: size,
-          type: obstacleType
-        });
       }, 400);
     }
 
@@ -245,7 +259,8 @@
       ctx.fillText('Score: ' + score, 10, 30);
 
       if (Date.now() - startTime >= 29500) {
-        ctx.drawImage(skiLodge, canvas.width / 2 - 180, canvas.height / 2 - 120, 360, 240);
+        let lodgeX = canvas.width - (Date.now() - startTime - 29500) * 0.5;
+        ctx.drawImage(skiLodge, lodgeX, canvas.height / 2 - 120, 360, 240);
       }
     }
 
