@@ -50,6 +50,10 @@
     border-radius: 10px;
     text-align: center;
   }
+  #gameOver img {
+    width: 50px;
+    height: 50px;
+  }
   #gameOver button {
     padding: 10px 20px;
     margin: 10px;
@@ -60,25 +64,20 @@
 </head>
 <body>
   <div id="characterSelect">
-    <h2>Let's make some turns!</h2>
+    <h2>Ski Shredders!</h2>
+    <button onclick="startGame('snowboarder.png')"><img src="snowboarder.png" alt="Snowboarder">Snowboarder</button>
     <button onclick="startGame('pandaboarder.png')"><img src="pandaboarder.png" alt="Panda Jones">Panda Jones</button>
-    <button onclick="startGame('rossskier.png')"><img src="rossskier.png" alt="Rippin Roscoe">Rippin Roscoe</button>
-    <button onclick="startGame('keegan3.png')"><img src="keegan3.png" alt="Steezy K">Steezy K</button>
-    <button onclick="startGame('victor.png')"><img src="victor.png" alt="Hot Boy V">Hot Boy V</button>
-    <button onclick="startGame('joeboarder.png')"><img src="joeboarder.png" alt="Steamboat Joe">Steamboat Joe</button>
+    <button onclick="startGame('astroboarder.png')"><img src="astroboarder.png" alt="Astronaut">Astronaut</button>
     <button onclick="startGame('ralphboarder.png')"><img src="ralphboarder.png" alt="Ralphie">Ralphie</button>
     <button onclick="startGame('eriboarder.png')"><img src="eriboarder.png" alt="Eri">Eri</button>
     <button onclick="startGame('mattboarder.png')"><img src="mattboarder.png" alt="Dustin Jones">Dustin Jones</button>
     <button onclick="startGame('claytonboarder.png')"><img src="claytonboarder.png" alt="Yeenon">Yeenon</button>
     <button onclick="startGame('kolbyboarder.png')"><img src="kolbyboarder.png" alt="HulkSmersh">HulkSmersh</button>
-    <button onclick="startGame('astroboarder.png')"><img src="astroboarder.png" alt="Astronaut">Astronaut</button>
-    <button onclick="startGame('snowboarder.png')"><img src="snowboarder.png" alt="Snowboarder">Snowboarder</button>
-
   </div>
   <canvas id="gameCanvas"></canvas>
   <div id="gameOver" style="display: none;">
     <h2>Game Over</h2>
-    <img src="hand.png" alt="Hand" style="width: 50px; height: 50px;">
+    <img src="hand.png" alt="Hand">
     <p id="finalScore"></p>
     <button onclick="restartGame()">Restart</button>
   </div>
@@ -152,6 +151,23 @@
 
     document.addEventListener('keydown', (e) => { keys[e.key] = true; });
     document.addEventListener('keyup', (e) => { keys[e.key] = false; });
+
+    // Add touch event listeners
+    canvas.addEventListener('touchstart', handleTouchStart, false);
+    canvas.addEventListener('touchmove', handleTouchMove, false);
+
+    function handleTouchStart(e) {
+      if (!gameRunning) return;
+      const touch = e.touches[0];
+      playerY = touch.clientY - playerSize / 2;
+    }
+
+    function handleTouchMove(e) {
+      if (!gameRunning) return;
+      const touch = e.touches[0];
+      playerY = touch.clientY - playerSize / 2;
+      e.preventDefault();
+    }
 
     function generateObstacles() {
       setInterval(() => {
