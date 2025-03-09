@@ -180,6 +180,18 @@
     function restartGame() {
       document.getElementById('gameOver').style.display = 'none';
       characterSelect.style.display = 'block';
+            // Reset character selection screen
+      characterSelect.innerHTML = `
+        <h2>Ski Shredders - let's make some turns!</h2>
+        <button onclick="startGame('pandaboarder.png')"><img src="pandaboarder.png" alt="Panda Jones">Panda Jones</button>
+        <button onclick="startGame('ralphboarder.png')"><img src="ralphboarder.png" alt="Ralphie">Ralphie</button>
+        <button onclick="startGame('eriboarder.png')"><img src="eriboarder.png" alt="Eri">Eri</button>
+        <button onclick="startGame('joeboarder.png')"><img src="joeboarder.png" alt="Steamboat Joe">Steamboat Joe</button>
+        <button onclick="startGame('rossskier.png')"><img src="rossskier.png" alt="Rippin Roscoe">Rippin' Roscoe</button>
+        <button onclick="startGame('keegan3.png')"><img src="keegan3.png" alt="Steezy Kee">Steezy Kee</button>
+        <button onclick="startGame('victor.png')"><img src="victor.png" alt="Hot Boy V">Hot Boy V</button>
+        <button onclick="startGame('astroboarder.png')"><img src="astroboarder.png" alt="Astronaut">Astronaut</button>
+      `;
     }
 
     document.addEventListener('keydown', (e) => { keys[e.key] = true; });
