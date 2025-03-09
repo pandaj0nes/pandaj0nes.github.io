@@ -117,12 +117,14 @@
     <button onclick="restartGame()">Make some more turns?</button>
   </div>
   <div id="scoreDisplay">Score: 0</div>
+  <audio id="backgroundMusic" src="ss_theme_song.mp3" loop></audio>
 
   <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     const characterSelect = document.getElementById('characterSelect');
     const scoreDisplay = document.getElementById('scoreDisplay');
+    const backgroundMusic = document.getElementById('backgroundMusic');
 
     const mountainsImg = new Image();
     mountainsImg.src = 'mountains.png';
@@ -172,6 +174,7 @@
     function startGame(character) {
       playerImg.src = character;
       characterSelect.style.display = 'none';
+      backgroundMusic.play();
       gameRunning = true;
       progress = 0;
       score = 0; // Reset score
@@ -186,6 +189,8 @@
     function restartGame() {
       document.getElementById('gameOver').style.display = 'none';
       characterSelect.style.display = 'grid';
+      backgroundMusic.pause(); // Pause background music
+      backgroundMusic.currentTime = 0; // Reset background music
             // Reset character selection screen
       characterSelect.innerHTML = `
        <img src="snowy_mountain.png" alt="Slope Shredders" class="title">
@@ -369,6 +374,8 @@
       gameRunning = false;
       document.getElementById('gameOver').style.display = 'block';
       document.getElementById('finalScore').innerText = 'Your Score: ' + score;
+      backgroundMusic.pause(); // Pause background music
+      backgroundMusic.currentTime = 0; // Reset background music
     }
   </script>
 </body>
