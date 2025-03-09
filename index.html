@@ -128,7 +128,7 @@
     const scoreDisplay = document.getElementById('scoreDisplay');
     const backgroundMusic = document.getElementById('backgroundMusic');
     const selectSound = document.getElementById('selectSound');
-  const gameOverSound = document.getElementById('gameOverSound');
+    const gameOverSound = document.getElementById('gameOverSound');
     
     const mountainsImg = new Image();
     mountainsImg.src = 'mountains.png';
@@ -193,9 +193,6 @@
     function playSelectSound() {
       selectSound.play();
     }
-
-    document.querySelectorAll('#characterSelect button').forEach(button => {
-      button.addEventListener('click', playSelectSound);});
 
     function restartGame() {
       document.getElementById('gameOver').style.display = 'none';
@@ -389,6 +386,9 @@
       gameOverSound.play(); // Play game over sound
       backgroundMusic.currentTime = 0; // Reset background music
     }
+    
+        document.querySelectorAll('#characterSelect button').forEach(button => {
+      button.addEventListener('click', playSelectSound);});
   </script>
 </body>
 </html>
