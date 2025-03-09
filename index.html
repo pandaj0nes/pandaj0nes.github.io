@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Ski Shredders</title>
+<title>Slope Shredders</title>
 <link rel="icon" type ="image/png" href="eriboarder.png">
 <style>
   body {
@@ -94,7 +94,7 @@
 </head>
 <body>
   <div id="characterSelect">
-    <h2>Ski Shredders - let's make some turns!</h2>
+    <h2>Slope Shredders - let's make some turns!</h2>
     <button onclick="startGame('pandaboarder.png')"><img src="pandaboarder.png" alt="Panda Jones">Panda Jones</button>
     <button onclick="startGame('ralphboarder.png')"><img src="ralphboarder.png" alt="Ralphie">Ralphie</button>
     <button onclick="startGame('eriboarder.png')"><img src="eriboarder.png" alt="Eri">Eri</button>
@@ -156,10 +156,10 @@
     let monsterSpeed = 10;
 
     const obstacleBoundingBoxes = {
-      rock: { x: 15, y: 15, width: 18, height: 18 },
-      tree: { x: 15, y: 10, width: 18, height: 38 },
-      tree2: { x: 15, y: 10, width: 18, height: 38 },
-      treeAspen: { x: 15, y: 10, width: 18, height: 38 }
+      rock: { x: 15, y: 15, width: 15, height: 18 },
+      tree: { x: 15, y: 10, width: 15, height: 32 },
+      tree2: { x: 15, y: 10, width: 15, height: 32 },
+      treeAspen: { x: 15, y: 10, width: 15, height: 32 }
     };
 
     const skierBoundingBox = { x: 0, y: 0, width: 48 * 0.85, height: 48 * 0.85 };
@@ -183,7 +183,7 @@
       characterSelect.style.display = 'grid';
             // Reset character selection screen
       characterSelect.innerHTML = `
-        <h2>Ski Shredders - let's make some turns!</h2>
+        <h2>Slope Shredders - let's make some turns!</h2>
         <button onclick="startGame('pandaboarder.png')"><img src="pandaboarder.png" alt="Panda Jones">Panda Jones</button>
         <button onclick="startGame('ralphboarder.png')"><img src="ralphboarder.png" alt="Ralphie">Ralphie</button>
         <button onclick="startGame('eriboarder.png')"><img src="eriboarder.png" alt="Eri">Eri</button>
