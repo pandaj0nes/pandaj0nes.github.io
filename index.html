@@ -19,34 +19,28 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 20px;
+    background-color: rgba(207, 196, 216, 0.9);
+    padding: 2vh 2vw;
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     text-align: center;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    width: 80%;
-    max-width: 600px;
-    max-height: 80vh;
-    overflow-y: auto;
+    gap: 2vh 2vw;
+    width: 90vw; /* Slightly smaller width */
+    max-width: 700px; /* Slightly smaller max-width */
+    margin: 5vh auto;
   }
-  #characterSelect h2 {
-    font-size: 36px;
-    margin-bottom: 20px;
-    grid-column: span 2;
-  }  
   #characterSelect img.title {
     grid-column: span 2;
     width: 100%;
     height: auto;
-    margin-bottom: 20px;
-    border-radius: 10px;
+    margin-bottom: 2vh;
+    border-radius: 10px; /* Round the corners of the title image */
   }
   #characterSelect button {
-    padding: 2px;
-    font-size: 10px;
+    padding: 1vh 1vw;
+    font-size: 2vh;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -57,16 +51,16 @@
     border-radius: 10px;
     transition: background-color 0.3s, transform 0.3s;
     width: 100%;
-    height: 150px;
+    height: 12vh; 
   }
   #characterSelect button:hover {
-    background-color: #89cdd;
+    background-color: #89cddd;
     transform: scale(1.05);
   }
-  #characterSelect img {
-    width: 50px;
-    height: 50px;
-    margin-bottom: 10px;
+  #characterSelect button img {
+    width: 5vh;
+    height: 5vh;
+    margin-bottom: 1vh;
   }
   #gameOver {
     position: absolute;
