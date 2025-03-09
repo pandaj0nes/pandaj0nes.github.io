@@ -6,7 +6,7 @@
   body {
     margin: 0;
     overflow: hidden;
-    background: white
+    background: whitesmoke;
   }
   #gameCanvas {
     width: 100%;
@@ -96,6 +96,10 @@
     rockImg.src = 'rock.png';
     const skierImg = new Image();
     skierImg.src = 'skier.png';
+    const monsterImg = new Image();
+    monsterImg.src = 'monster.png';
+    const bonesImg = new Image();
+    bonesImg.src = 'bones.png';
     
     let playerImg = new Image();
     let playerX = 100;
@@ -109,6 +113,10 @@
     let computerSkiers = [];
     let keys = {};
     let score = 0; // Add this line
+
+    let monsterX = canvas.width;
+    let monsterY = canvas.height / 2 - 60;
+    let monsterSpeed = 10;
 
     const obstacleBoundingBoxes = {
       rock: { x: 15, y: 15, width: 18, height: 18 },
@@ -187,7 +195,18 @@
       score = Math.floor(progress / 10); // Update score based on progress
 
       if (Date.now() - startTime >= 30000) {
-        gameOver(true);
+        if (monsterX > playerX + playerSize) {
+          monsterX -= monsterSpeed;
+        }
+        if (monsterY < playerY) {
+          monsterY += monsterSpeed / 2;
+        } else if (monsterY > playerY) {
+          monsterY -= monsterSpeed / 2;
+        }
+        if (monsterX < playerX + playerSize && Math.abs(monsterY - playerY) < playerSize) {
+          playerImg.src = 'bones.png';
+          gameOver(false);
+        }
       }
 
       if (keys.ArrowUp) playerY -= 5;
@@ -257,9 +276,8 @@
       ctx.font = '24px Arial';
       ctx.fillText('Score: ' + score, 10, 30);
 
-      if (Date.now() - startTime >= 29500) {
-        let lodgeX = canvas.width - (Date.now() - startTime - 29500) * 0.5;
-        ctx.drawImage(skiLodge, lodgeX, canvas.height / 2 - 120, 360, 240);
+      if (Date.now() - startTime >= 30000) {
+        ctx.drawImage(monsterImg, monsterX, monsterY, 120, 120);
       }
     }
 
