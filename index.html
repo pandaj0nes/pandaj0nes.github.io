@@ -118,6 +118,7 @@
   </div>
   <div id="scoreDisplay">Score: 0</div>
   <audio id="backgroundMusic" src="ss_theme_song.mp3" loop></audio>
+  <audio id="selectSound"><source src="ss_select.wav" type="audio/wav"> Your browser does not support the audio element.</audio>
 
   <script>
     const canvas = document.getElementById('gameCanvas');
@@ -125,6 +126,7 @@
     const characterSelect = document.getElementById('characterSelect');
     const scoreDisplay = document.getElementById('scoreDisplay');
     const backgroundMusic = document.getElementById('backgroundMusic');
+    const selectSound = document.getElementById('selectSound');
 
     const mountainsImg = new Image();
     mountainsImg.src = 'mountains.png';
@@ -185,6 +187,13 @@
       generateComputerSkiers();
       gameLoop();
     }
+
+    function playSelectSound() {
+      selectSound.play();
+    }
+
+    document.querySelectorAll('#characterSelect button').forEach(button => {
+      button.addEventListener('click', playSelectSound);});
 
     function restartGame() {
       document.getElementById('gameOver').style.display = 'none';
