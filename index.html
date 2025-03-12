@@ -1,134 +1,578 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Slope Shredders</title>
-<link rel="icon" type ="image/png" href="eriboarder.png">
-<style>
-  body {
-    margin: 0;
-    overflow-y: scroll;
-    background: whitesmoke;
-  }
-  #gameCanvas {
-    width: 100%;
-    height: calc(100vh - 20px);
-    display: block;
-  }
-  #characterSelect {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(204, 215, 240, 0.9);
-    padding: 1.7vh 1.7vw;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.7vh 1.7vw;
-    width: 81vw; /* Slightly smaller width */
-    max-width: 700px; /* Slightly smaller max-width */
-    margin: 5vh auto;
-  }
-  #characterSelect img.title {
-    grid-column: span 2;
-    width: 100%;
-    height: auto;
-    margin-bottom: 1.8vh;
-    border-radius: 10px; /* Round the corners of the title image */
-  }
-  #characterSelect button {
-    padding: .9vh ,9vw;
-    font-size: 1.8vh;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    background-color: #f0f0f0;
-    border: 2px solid #ccc;
-    border-radius: 10px;
-    transition: background-color 0.3s, transform 0.3s;
-    width: 100%;
-    height: 12vh; 
-  }
-  #characterSelect button:hover {
-    background-color: #89cddd;
-    transform: scale(1.05);
-  }
-  #characterSelect button img {
-    width: 4vh;
-    height: 4vh;
-    margin-bottom: .9vh;
-  }
-  #gameOver {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    max-height: 80vh;
-    overflow-y: auto;
-  }
-  #gameOver img {
-    width: 50px;
-    height: 50px;
-  }
-  #gameOver button {
-    padding: 10px 20px;
-    margin: 10px;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  #scoreDisplay {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-size: 24px;
-    font-family: Arial, sans-serif;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skiing with Buddies</title>
+    <link rel="icon" type="image/png" href="eriboarder.png">
+    <style>
+        /* Modern CSS Reset */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Base styles */
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: #263238;
+        }
+
+        /* Game Canvas */
+        #gameCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: none;
+            touch-action: none;
+            background: #f0f9ff;
+            z-index: 1;
+        }
+
+        /* Game Over Screen */
+        #gameOver {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: clamp(2rem, 4vh, 4rem);
+            border-radius: 20px;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            z-index: 2000;
+        }
+
+        #gameOver h2 {
+            font-size: clamp(28px, 4vh, 48px);
+            margin-bottom: 1.5rem;
+            color: #1976d2;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #gameOver .game-over-image {
+            width: min(200px, 40vw);
+            height: auto;
+            margin: 1rem auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        #gameOver #finalScore {
+            font-size: clamp(18px, 2.5vh, 24px);
+            margin: 1rem 0;
+            color: #333;
+        }
+
+        #gameOver button {
+            background: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 32px;
+            font-size: clamp(16px, 2vh, 20px);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 1rem;
+        }
+
+        #gameOver button:hover {
+            background: #1976d2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Score Display */
+        #scoreDisplay {
+            position: fixed;
+            bottom: clamp(1rem, 2vh, 2rem);
+            left: clamp(1rem, 2vw, 2rem);
+            background: rgba(33, 33, 33, 0.85);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: clamp(16px, 2.4vh, 24px);
+            backdrop-filter: blur(4px);
+            font-weight: 500;
+            z-index: 1000; /* Ensure it's above other elements */
+            pointer-events: none; /* Prevent it from interfering with game controls */
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            #characterSelect {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                padding: 16px;
+                width: 95vw;
+            }
+
+            #characterSelect button {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            #gameOver {
+                width: 90vw;
+                max-width: 400px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            #characterSelect {
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+        }
+
+        /* Game Screens */
+        .game-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            z-index: 1000;
+        }
+
+        #titleScreen h1 {
+            font-size: clamp(32px, 6vw, 64px);
+            margin-bottom: 2rem;
+            color: #1976d2;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .mode-select {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .mode-select button {
+            padding: 1rem 2rem;
+            font-size: clamp(16px, 2vw, 24px);
+            border: none;
+            border-radius: 8px;
+            background: #2196f3;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mode-select button:hover {
+            background: #1976d2;
+            transform: translateY(-2px);
+        }
+
+        /* Add these styles to your CSS */
+        #highScores {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 90vw;
+        }
+
+        #scoreList {
+            margin: 1rem 0;
+            font-size: 1.2rem;
+            text-align: left;
+        }
+
+        #scoreList div {
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* Add to your existing styles */
+        .game-setup {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            width: 90%;
+            max-width: 1200px;
+            margin: 2rem auto;
+        }
+
+        .mode-selection, .character-selection {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .mode-selection h2, .character-selection h2 {
+            font-size: clamp(20px, 3vw, 28px);
+            color: #1976d2;
+            margin-bottom: 1rem;
+        }
+
+        .mode-options {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .mode-button {
+            padding: 1rem 2rem;
+            font-size: clamp(16px, 2vw, 20px);
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            background: white;
+            color: #2196f3;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .mode-button h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1em;
+        }
+
+        .mode-button p {
+            margin: 0;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .mode-button.selected {
+            background: #2196f3;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Force 3 columns */
+            gap: 1rem;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 1rem;
+            justify-items: center;
+        }
+
+        .character-button {
+            width: 100%;
+            max-width: 150px;
+            aspect-ratio: 1;
+            padding: 0.8rem;
+            background: white;
+            border: 2px solid #e3f2fd;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .character-button img {
+            width: auto;
+            height: 70%;
+            object-fit: contain;
+            max-width: 100%;
+        }
+
+        .character-button span {
+            font-size: clamp(12px, 1.5vh, 14px);
+            text-align: center;
+            font-weight: 500;
+            color: #333;
+            margin-top: auto;
+        }
+
+        .character-button:hover {
+            transform: translateY(-2px);
+            border-color: #90caf9;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+        }
+
+        .character-button.selected {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+
+        .start-button {
+            padding: 1rem 3rem;
+            font-size: clamp(20px, 3vw, 28px);
+            background: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 2rem;
+        }
+
+        .start-button:disabled {
+            background: #ccc;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .start-button:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+
+        .title-image {
+            width: min(90vw, 700px);
+            height: 200px;
+            object-fit: cover;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-setup {
+            width: min(90vw, 700px);
+            margin: 0 auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Force 3 columns */
+            gap: 1rem;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 1rem;
+            justify-items: center;
+        }
+
+        /* Media Queries for better responsive layout */
+        @media (max-width: 768px) {
+            .character-grid {
+                grid-template-columns: repeat(2, 1fr); /* Switch to 2 columns on mobile */
+            }
+            
+            .mode-button {
+                min-width: unset;
+                width: 100%;
+            }
+        }
+
+        @media (max-height: 800px) {
+            .character-grid {
+                max-height: 50vh;
+            }
+        }
+
+        /* Add to your existing styles */
+        .top-scores {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-scores h3 {
+            color: #1976d2;
+            margin-bottom: 0.5rem;
+            font-size: clamp(18px, 2.5vw, 24px);
+        }
+
+        .top-scores .score-entry {
+            font-size: clamp(16px, 2vw, 20px);
+            padding: 0.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .top-scores .score-entry:last-child {
+            border-bottom: none;
+        }
+
+        /* Add this CSS for the warning message */
+        #warningMessage {
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: clamp(18px, 2.5vw, 24px);
+            text-align: center;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        #warningMessage {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: clamp(24px, 4vw, 36px);
+            font-weight: bold;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 1000;
+        }
+    </style>
 </head>
 <body>
-  <div id="characterSelect">
-    <img src="ss_title.png" alt="Slope Shredders" class="title">
-    <button onclick="startGame('pandaboarder.png')"><img src="pandaboarder.png" alt="Panda Jones">Panda Jones</button>
-    <button onclick="startGame('ralphboarder.png')"><img src="ralphboarder.png" alt="Ralphie">Ralph</button>
-    <button onclick="startGame('eriboarder.png')"><img src="eriboarder.png" alt="Eri">Ernie</button>
-    <button onclick="startGame('joeboarder.png')"><img src="joeboarder.png" alt="Steamboat Joe">Steamboat Joe</button>
-    <button onclick="startGame('rossskier.png')"><img src="rossskier.png" alt="Rippin Roscoe">Rippin' Roscoe</button>
-    <button onclick="startGame('keegan3.png')"><img src="keegan3.png" alt="Steezy Kee">Steezy Kee</button>
-    <button onclick="startGame('victor.png')"><img src="victor.png" alt="Hot Boy V">Hot Boy V</button>
-    <button onclick="startGame('astroboarder.png')"><img src="astroboarder.png" alt="Astroboarder">Astroboarder</button>
+<div id="titleScreen" class="game-screen">
+    <img src="snowy_mountain.png" alt="Snowy Mountain" class="title-image">
+    <h1>Slope Shredders</h1>
+    
+    <div class="game-setup">
+        <div class="top-scores">
+            <h3>My Top Scores</h3>
+            <div id="topThreeScores"></div>
+        </div>
+
+        <div class="mode-selection">
+            <h2>Game Mode</h2>
+            <div class="mode-options">
+                <button onclick="selectGameMode('monster')" class="mode-button" data-mode="monster">
+                    <h3>Yeti Mode</h3>
+                </button>
+                <button onclick="selectGameMode('endless')" class="mode-button" data-mode="endless">
+                    <h3>Standard Mode</h3>
+                </button>
+            </div>
+        </div>
+
+        <div class="character-selection">
+            <h2>Choose your Buddy</h2>
+            <div class="character-grid">
+                <button onclick="selectCharacter('pandaboarder.png', event)" class="character-button">
+                    <img src="pandaboarder.png" alt="Panda">
+                    <span>Panda Jones</span>
+                </button>
+                <button onclick="selectCharacter('ralphboarder.png', event)" class="character-button">
+                    <img src="ralphboarder.png" alt="Ralph">
+                    <span>Ralph</span>
+                </button>
+                <button onclick="selectCharacter('eriboarder.png', event)" class="character-button">
+                    <img src="eriboarder.png" alt="Eri">
+                    <span>Eri</span>
+                </button>
+                <button onclick="selectCharacter('joeboarder.png', event)" class="character-button">
+                    <img src="joeboarder.png" alt="Joe">
+                    <span>Steamboat Joe</span>
+                </button>
+                <button onclick="selectCharacter('rossskier.png', event)" class="character-button">
+                    <img src="rossskier.png" alt="Ross">
+                    <span>Rippin' Ross</span>
+                </button>
+                <button onclick="selectCharacter('keegan3.png', event)" class="character-button">
+                    <img src="keegan3.png" alt="Keegan">
+                    <span>Steezy Kee</span>
+                </button>
+                <button onclick="selectCharacter('victor.png', event)" class="character-button">
+                    <img src="victor.png" alt="Victor">
+                    <span>Hot Boy V</span>
+                </button>
+                <button onclick="selectCharacter('astroboarder.png', event)" class="character-button">
+                    <img src="astroboarder.png" alt="Astro">
+                    <span>Astroboarder</span>
+                </button>
+                <button onclick="selectCharacter('snowboarder.png', event)" class="character-button">
+                    <img src="snowboarder.png" alt="Classic">
+                    <span>Classic</span>
+                </button>
+            </div>
+        </div>
+
+        <button id="startButton" class="start-button" disabled onclick="startGameSetup()">
+            Let's Shred!
+        </button>
+    </div>
+</div>
+  <div id="scoreDisplay">Score: 0</div>
+  <!-- Add this after your scoreDisplay div -->
+  <div id="highScores" class="game-screen" style="display: none;">
+    <h2>High Scores</h2>
+    <div id="scoreList"></div>
+    <button onclick="closeHighScores()">Close</button>
   </div>
-  <canvas id="gameCanvas"></canvas>
+  <!-- Add this before the canvas element -->
   <div id="gameOver" style="display: none;">
     <h2>Game Over</h2>
-    <img src="hand.png" alt="Hand">
+    <img src="middle.png" alt="Game Over" class="game-over-image">
     <p id="finalScore"></p>
-    <button onclick="restartGame()">Make some more turns?</button>
-  </div>
-  <div id="scoreDisplay">Score: 0</div>
+    <button onclick="restartGame()">Play Again</button>
+</div>
+  <canvas id="gameCanvas"></canvas>
   <audio id="backgroundMusic" src="ss_theme_song.mp3" loop></audio>
   <audio id="selectSound"><source src="ss_select.wav" type="audio/wav"> Your browser does not support the audio element.</audio>
   <audio id="gameOverSound"><source src="ss_gameover.wav" type="audio/wav">Your browser does not support the audio element.</audio>
   
   <script>
+    // Initialize game elements
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const characterSelect = document.getElementById('characterSelect');
     const scoreDisplay = document.getElementById('scoreDisplay');
     const backgroundMusic = document.getElementById('backgroundMusic');
     const selectSound = document.getElementById('selectSound');
     const gameOverSound = document.getElementById('gameOverSound');
+
+    // Make sure all game images are loaded
+    const gameImages = {
+        mountains: 'mountains.png',
+        skiLodge: 'ski_lodge.png',
+        tree: 'tree.png',
+        tree2: 'tree_2.png',
+        treeAspen: 'tree_aspen.png',
+        rock: 'rock.png',
+        skier: 'skier.png',
+        monster: 'monster.png',
+        bones: 'bones.png'
+    };
+
+    // Load all images
+    const loadedImages = {};
+    Object.entries(gameImages).forEach(([key, src]) => {
+        loadedImages[key] = new Image();
+        loadedImages[key].src = src;
+    });
+
+    // Initialize player image
+    let playerImg = new Image();
+
+    const characterSelect = document.getElementById('characterSelect');
     
     const mountainsImg = new Image();
     mountainsImg.src = 'mountains.png';
@@ -149,10 +593,9 @@
     const bonesImg = new Image();
     bonesImg.src = 'bones.png';
     
-    let playerImg = new Image();
     let playerX = 100;
     let playerY = canvas.height / 2;
-    let playerSize = 48;
+    let playerSize = 64; // Increased from 48
     let scrollSpeed = 5;
     let progress = 0;
     let gameRunning = false;
@@ -173,44 +616,189 @@
       treeAspen: { x: 15, y: 10, width: 15, height: 32 }
     };
 
-    const skierBoundingBox = { x: 0, y: 0, width: 48 * 0.85, height: 48 * 0.85 };
-    
-    function startGame(character) {
-      playerImg.src = character;
-      characterSelect.style.display = 'none';
-      backgroundMusic.play();
-      gameRunning = true;
-      progress = 0;
-      score = 0; // Reset score
-      startTime = Date.now();
-      obstacles = [];
-      computerSkiers = [];
-      generateObstacles();
-      generateComputerSkiers();
-      gameLoop();
+    const skierBoundingBox = { 
+        x: 0, 
+        y: 0, 
+        width: 64 * 0.85,  // Adjusted for new size
+        height: 64 * 0.85  // Adjusted for new size
+    };
+
+    // Update the constants section
+    const GAME_STATES = {
+        TITLE: 'title',
+        CHARACTER_SELECT: 'characterSelect',
+        PLAYING: 'playing',
+        GAME_OVER: 'gameOver'
+    };
+
+    const GAME_MODES = {
+        MONSTER: 'monster',
+        ENDLESS: 'endless'
+    };
+
+    // Add these constants for better game balance
+    const GAME_CONFIG = {
+        ENDLESS: {
+            INITIAL_SPEED: 5,
+            SPEED_INCREMENT: 0.3,        // Increased from 0.2
+            SPEED_INTERVAL: 200,         // Decreased from 300 for faster difficulty increase
+            MAX_SPEED: 14,              // Increased from 12
+            OBSTACLE_SPAWN_RATE: 0.7,
+            SKIER_SPAWN_RATE: 0.4,      // Increased from 0.2
+            OBSTACLE_SIZE: {
+                MIN: 80,
+                MAX: 120
+            }
+        },
+        MONSTER: {
+            INITIAL_SPEED: 4,
+            MONSTER_SPEED: 8,
+            WARNING_TIME: 25000, // ms before monster appears
+            CHASE_TIME: 30000,   // ms when monster starts chasing
+            OBSTACLE_SPAWN_RATE: 0.5,
+            SKIER_SPAWN_RATE: 0.15,
+            MONSTER_SIZE: 160,  // Increased from 120
+            OBSTACLE_SIZE: {
+                MIN: 80,
+                MAX: 120
+            }
+        }
+    };
+
+    // Initialize game state variables
+    let currentGameState = GAME_STATES.TITLE;
+    let currentGameMode = null;
+    let selectedCharacter = null;
+    let difficultyLevel = 1;
+    let gameSpeed = 5;
+    let lastSpeedIncrease = 0;
+
+    function selectGameMode(mode) {
+        currentGameMode = mode;
+        playSelectSound();
+        
+        // Update UI
+        document.querySelectorAll('.mode-button').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        document.querySelector(`[data-mode="${mode}"]`).classList.add('selected');
+        
+        checkStartButton();
     }
 
+    function selectCharacter(character, event) {
+        selectedCharacter = character;
+        playSelectSound();
+        
+        // Update UI
+        document.querySelectorAll('.character-button').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        event.currentTarget.classList.add('selected');
+        
+        checkStartButton();
+    }
+
+    function checkStartButton() {
+        const startButton = document.getElementById('startButton');
+        startButton.disabled = !(currentGameMode && selectedCharacter);
+    }
+
+    function startGameSetup() {
+    if (!currentGameMode || !selectedCharacter) return;
+    
+    // Play sound
+    try {
+        selectSound.currentTime = 0;
+        selectSound.play().catch(e => console.log("Sound play failed:", e));
+    } catch (e) {
+        console.log("Sound play failed:", e);
+    }
+    
+    // Load the character image before starting
+    playerImg = new Image();
+    playerImg.onload = () => {
+        startGame(selectedCharacter);
+    };
+    playerImg.src = selectedCharacter;
+}
+
+    function startGame(character) {
+    // Hide title screen and show game canvas
+    document.getElementById('titleScreen').style.display = 'none';
+    canvas.style.display = 'block';
+    
+    // Initialize game state
+    currentGameState = GAME_STATES.PLAYING;
+    gameRunning = true;
+    progress = 0;
+    score = 0;
+    
+    // Show and reset score display
+    scoreDisplay.style.display = 'block';
+    scoreDisplay.textContent = 'Score: 0';
+    
+    // Initialize game parameters
+    startTime = Date.now();
+    gameSpeed = 5;
+    difficultyLevel = 1;
+    lastSpeedIncrease = 0;
+    
+    // Reset positions
+    playerX = 100;
+    playerY = canvas.height / 2;
+    monsterX = canvas.width;
+    monsterY = canvas.height / 2 - 60;
+    
+    // Clear arrays
+    obstacles = [];
+    computerSkiers = [];
+    
+    // Ensure canvas is properly sized
+    resizeCanvas();
+    
+    // Start game systems
+    generateObstacles();
+    generateComputerSkiers();
+    
+    // Play background music
+    try {
+        backgroundMusic.currentTime = 0;
+        backgroundMusic.volume = 0.5;
+        backgroundMusic.play().catch(e => console.log("Music play failed:", e));
+    } catch (e) {
+        console.log("Music play failed:", e);
+    }
+    
+    // Start game loop
+    requestAnimationFrame(gameLoop);
+}
+
     function playSelectSound() {
-      selectSound.play();
+        try {
+            selectSound.currentTime = 0;
+            selectSound.play().catch(e => console.log("Sound play failed:", e));
+        } catch (e) {
+            console.log("Sound play failed:", e);
+        }
     }
 
     function restartGame() {
-      document.getElementById('gameOver').style.display = 'none';
-      characterSelect.style.display = 'grid';
-      backgroundMusic.pause(); // Pause background music
-      backgroundMusic.currentTime = 0; // Reset background music
-            // Reset character selection screen
-      characterSelect.innerHTML = `
-       <img src="snowy_mountain.png" alt="Slope Shredders" class="title">
-        <button onclick="startGame('pandaboarder.png')"><img src="pandaboarder.png" alt="Panda Jones">Panda Jones</button>
-        <button onclick="startGame('ralphboarder.png')"><img src="ralphboarder.png" alt="Ralphie">Ralphie</button>
-        <button onclick="startGame('eriboarder.png')"><img src="eriboarder.png" alt="Eri">Eri</button>
-        <button onclick="startGame('joeboarder.png')"><img src="joeboarder.png" alt="Steamboat Joe">Steamboat Joe</button>
-        <button onclick="startGame('rossskier.png')"><img src="rossskier.png" alt="Rippin Roscoe">Rippin' Roscoe</button>
-        <button onclick="startGame('keegan3.png')"><img src="keegan3.png" alt="Steezy Kee">Steezy Kee</button>
-        <button onclick="startGame('victor.png')"><img src="victor.png" alt="Hot Boy V">Hot Boy V</button>
-        <button onclick="startGame('astroboarder.png')"><img src="astroboarder.png" alt="Astronaut">Astronaut</button>
-      `;
+        currentGameState = GAME_STATES.TITLE;
+        document.getElementById('gameOver').style.display = 'none';
+        document.getElementById('titleScreen').style.display = 'flex';
+        canvas.style.display = 'none';
+        backgroundMusic.pause();
+        backgroundMusic.currentTime = 0;
+        scoreDisplay.style.display = 'none';
+        
+        // Reset selections
+        selectedCharacter = null;
+        currentGameMode = null;
+        document.querySelectorAll('.mode-button, .character-button').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        document.getElementById('startButton').disabled = true;
     }
 
     document.addEventListener('keydown', (e) => { keys[e.key] = true; });
@@ -234,161 +822,390 @@
     }
 
     function generateObstacles() {
-      setInterval(() => {
+    const playAreaTop = canvas.height * 0.3 + 50;
+    const playAreaBottom = canvas.height - 50;
+    const playableHeight = playAreaBottom - playAreaTop;
+
+    setInterval(() => {
         if (!gameRunning) return;
-        if (Math.random() < 0.8) { // 80% chance to generate an obstacle
-          let type = Math.random();
-          let obstacleType;
-          if (type < 0.33) {
-            obstacleType = 'tree';
-          } else if (type < 0.66) {
-            obstacleType = 'tree2';
-          } else {
-            obstacleType = 'treeAspen';
-          }
-          let size = 60 + Math.random() * 40; // Random size between 60 and 100
-          if (obstacleType === 'treeAspen') {
-            size *= 1.3; // Make aspen trees 30% larger
-          }
-          obstacles.push({
-            x: canvas.width,
-            y: 180 + Math.random() * (canvas.height - 220),
-            width: size,
-            height: size,
-            type: obstacleType
-          });
+        if (Math.random() < 0.8) {
+            let type = Math.random();
+            let obstacleType;
+            if (type < 0.33) {
+                obstacleType = 'tree';
+            } else if (type < 0.66) {
+                obstacleType = 'tree2';
+            } else {
+                obstacleType = 'treeAspen';
+            }
+            
+            let size = GAME_CONFIG.ENDLESS.OBSTACLE_SIZE.MIN + 
+                      Math.random() * (GAME_CONFIG.ENDLESS.OBSTACLE_SIZE.MAX - GAME_CONFIG.ENDLESS.OBSTACLE_SIZE.MIN);
+            
+            if (obstacleType === 'treeAspen') {
+                size *= 1.3;
+            }
+            
+            obstacles.push({
+                x: canvas.width,
+                y: playAreaTop + Math.random() * playableHeight,
+                width: size,
+                height: size,
+                type: obstacleType
+            });
         }
-      }, 400);
-    }
+    }, 400);
+}
 
     function generateComputerSkiers() {
-      setInterval(() => {
+    const playAreaTop = canvas.height * 0.3 + 50;
+    const playAreaBottom = canvas.height - 50;
+    const playableHeight = playAreaBottom - playAreaTop;
+
+    setInterval(() => {
         if (!gameRunning) return;
-        computerSkiers.push({
-          x: canvas.width + Math.random() * 500,
-          y: 180 + Math.random() * (canvas.height - 220),
-          width: 48,
-          height: 48,
-          speed: 2 + Math.random() * 2
-        });
-      }, 800);
+        if (Math.random() < GAME_CONFIG.ENDLESS.SKIER_SPAWN_RATE) {
+            const verticalOffset = Math.random() * playableHeight;
+            computerSkiers.push({
+                x: canvas.width + Math.random() * 200,
+                y: playAreaTop + verticalOffset,
+                width: 64,
+                height: 64,
+                speed: 2 + Math.random() * 3,      // Slightly reduced speed variation
+                verticalDirection: Math.random() < 0.5 ? -1 : 1,
+                verticalSpeed: 0.5 + Math.random(), // Slower vertical movement
+                lastDirectionChange: Date.now()
+            });
+        }
+    }, 800);  // Decreased from 1000 for more frequent spawns
+}
+
+    function updateObstacles() {
+    // Update obstacles
+    for (const obstacle of obstacles) {
+        obstacle.x -= gameSpeed;
     }
+    
+    // Update computer skiers with smoother movement
+    for (const skier of computerSkiers) {
+        skier.x -= (gameSpeed + skier.speed);
+        
+        // Smoother vertical movement
+        if (Date.now() - skier.lastDirectionChange > 2000) {  // Change direction every 2 seconds
+            skier.verticalDirection *= -1;
+            skier.lastDirectionChange = Date.now();
+        }
+
+        // Apply vertical movement with boundaries
+        const newY = skier.y + (skier.verticalSpeed * skier.verticalDirection);
+        const playAreaTop = canvas.height * 0.3 + 50;
+        const playAreaBottom = canvas.height - 50;
+        
+        if (newY > playAreaTop && newY < playAreaBottom - skier.height) {
+            skier.y = newY;
+        } else {
+            skier.verticalDirection *= -1;  // Reverse direction at boundaries
+        }
+    }
+    
+    // Clean up off-screen objects
+    obstacles = obstacles.filter(obstacle => obstacle.x + obstacle.width > 0);
+    computerSkiers = computerSkiers.filter(skier => skier.x + skier.width > 0);
+}
 
     function update() {
-      if (!gameRunning) return;
+    if (!gameRunning) return;
 
-      progress += scrollSpeed;
-      score = Math.floor(progress / 10); // Update score based on progress
-      scoreDisplay.innerText = 'Score: ' + score; // Update score display
+    progress += gameSpeed;
+    score = Math.floor(progress / 10);
+    
+    // Update score display with current game mode
+    const modePrefix = currentGameMode === GAME_MODES.MONSTER ? 'Monster: ' : 'Score: ';
+    scoreDisplay.textContent = `${modePrefix}${score}`;
+    
+    // Handle different game modes
+    if (currentGameMode === GAME_MODES.MONSTER) {
+        handleMonsterMode();
+    } else {
+        handleEndlessMode();
+    }
 
-      if (Date.now() - startTime >= 30000) {
+    // Update player position
+    if (keys.ArrowUp) playerY -= 5;
+    if (keys.ArrowDown) playerY += 5;
+    playerY = Math.max(180, Math.min(canvas.height - 140, playerY));
+
+    updateObstacles();
+    checkCollisions();
+}
+
+    // Add these new functions
+    function handleMonsterMode() {
+    const config = GAME_CONFIG.MONSTER;
+    const currentTime = Date.now() - startTime;
+    
+    if (currentTime >= config.WARNING_TIME && currentTime < config.CHASE_TIME) {
+        if (Math.floor(currentTime / 500) % 2) {
+            showWarning("The Yeti is Coming!");
+        }
+    }
+    
+    if (currentTime >= config.CHASE_TIME) {
+        const distanceToPlayer = Math.abs(monsterY - playerY);
+        const chaseSpeed = Math.min(config.MONSTER_SPEED, distanceToPlayer * 0.1);
+        
         if (monsterX > playerX + playerSize) {
-          monsterX -= monsterSpeed;
+            monsterX -= chaseSpeed;
         }
         if (monsterY < playerY) {
-          monsterY += monsterSpeed / 2;
+            monsterY += chaseSpeed / 2;
         } else if (monsterY > playerY) {
-          monsterY -= monsterSpeed / 2;
+            monsterY -= chaseSpeed / 2;
         }
+        
         if (monsterX < playerX + playerSize && Math.abs(monsterY - playerY) < playerSize) {
-          playerImg.src = 'bones.png';
-          gameOver(false);
+            playerImg.src = 'bones.png';
+            gameOver(false);
         }
-      }
+    }
+}
 
-      if (keys.ArrowUp) playerY -= 5;
-      if (keys.ArrowDown) playerY += 5;
-      playerY = Math.max(180, Math.min(canvas.height - 140, playerY));
-
-      for (const skier of computerSkiers) {
-        skier.x -= skier.speed;
-      }
-      
-      for (const obstacle of obstacles) {
-        obstacle.x -= scrollSpeed;
-      }
-      
-      obstacles = obstacles.filter(obstacle => obstacle.x + obstacle.width > 0);
-      computerSkiers = computerSkiers.filter(skier => skier.x + skier.width > 0);
-
-      for (const obstacle of obstacles) {
-        const bbox = obstacleBoundingBoxes[obstacle.type];
-        if (playerX < obstacle.x + bbox.x + bbox.width &&
-            playerX + playerSize > obstacle.x + bbox.x &&
-            playerY < obstacle.y + bbox.y + bbox.height &&
-            playerY + playerSize > obstacle.y + bbox.y) {
-          gameOver(false);
+    function handleEndlessMode() {
+        const config = GAME_CONFIG.ENDLESS;
+        
+        if (score > lastSpeedIncrease + config.SPEED_INTERVAL && gameSpeed < config.MAX_SPEED) {
+            gameSpeed = Math.min(
+                config.MAX_SPEED, 
+                config.INITIAL_SPEED + (Math.floor(score / config.SPEED_INTERVAL) * config.SPEED_INCREMENT)
+            );
+            
+            // Increase spawn rates with difficulty
+            config.SKIER_SPAWN_RATE = Math.min(0.6, 0.4 + (difficultyLevel * 0.05));
+            config.OBSTACLE_SPAWN_RATE = Math.min(0.8, 0.7 + (difficultyLevel * 0.02));
+            
+            difficultyLevel++;
+            lastSpeedIncrease = score;
         }
-      }
-
-      for (const skier of computerSkiers) {
-        if (playerX < skier.x + skierBoundingBox.x + skierBoundingBox.width &&
-            playerX + playerSize > skier.x + skierBoundingBox.x &&
-            playerY < skier.y + skierBoundingBox.y + skierBoundingBox.height &&
-            playerY + playerSize > skier.y + skierBoundingBox.y) {
-          gameOver(false);
-        }
-      }
     }
 
     function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      let bgX = -progress * 0.5 % canvas.width;
-      ctx.drawImage(mountainsImg, bgX, 0, canvas.width, 200);
-      ctx.drawImage(mountainsImg, bgX + canvas.width, 0, canvas.width, 200); 
-      
-      for (const obstacle of obstacles) {
+    if (!gameRunning) return;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw sky background
+    ctx.fillStyle = '#87CEEB';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw mountains at the top third of the screen
+    let bgX = -(progress * 0.5) % canvas.width;
+    const mountainHeight = canvas.height * 0.3; // Reduce mountain height to 30% of screen
+    ctx.drawImage(mountainsImg, bgX, 0, canvas.width, mountainHeight);
+    ctx.drawImage(mountainsImg, bgX + canvas.width, 0, canvas.width, mountainHeight);
+    
+    // Draw snow ground
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, mountainHeight, canvas.width, canvas.height - mountainHeight);
+    
+    // Define play area
+    const playAreaTop = mountainHeight + 50;
+    const playAreaBottom = canvas.height - 50;
+    
+    // Draw obstacles only in play area
+    obstacles.forEach(obstacle => {
         let img;
-        if (obstacle.type === 'rock') {
-          img = rockImg;
-        } else if (obstacle.type === 'tree2') {
-          img = tree2Img;
-        } else if (obstacle.type === 'treeAspen') {
-          img = treeAspenImg;
-        } else {
-          img = treeImg;
+        switch(obstacle.type) {
+            case 'rock': img = rockImg; break;
+            case 'tree2': img = tree2Img; break;
+            case 'treeAspen': img = treeAspenImg; break;
+            default: img = treeImg;
         }
-        ctx.drawImage(img, obstacle.x, obstacle.y - obstacle.height * 0.5, obstacle.width, obstacle.height);
-      }
-
-      for (const skier of computerSkiers) {
-        ctx.drawImage(skierImg, skier.x, skier.y, skier.width, skier.height);
-      }
-
-      ctx.drawImage(playerImg, playerX, playerY, playerSize, playerSize);
-
-      if (Date.now() - startTime >= 30000) {
-        ctx.drawImage(monsterImg, monsterX, monsterY, 120, 120);
-      }
+        ctx.drawImage(img, obstacle.x, 
+                     Math.max(playAreaTop, Math.min(playAreaBottom - obstacle.height, obstacle.y)), 
+                     obstacle.width, obstacle.height);
+    });
+    
+    // Draw computer skiers in play area
+    computerSkiers.forEach(skier => {
+        ctx.drawImage(skierImg, skier.x, 
+                     Math.max(playAreaTop, Math.min(playAreaBottom - skier.height, skier.y)),
+                     skier.width, skier.height);
+    });
+    
+    // Constrain player to play area
+    playerY = Math.max(playAreaTop, Math.min(playAreaBottom - playerSize, playerY));
+    ctx.drawImage(playerImg, playerX, playerY, playerSize, playerSize);
+    
+    // Draw monster in monster mode
+    if (currentGameMode === GAME_MODES.MONSTER && Date.now() - startTime >= 30000) {
+        ctx.drawImage(monsterImg, monsterX, monsterY, 
+                      GAME_CONFIG.MONSTER.MONSTER_SIZE, 
+                      GAME_CONFIG.MONSTER.MONSTER_SIZE);
     }
+}
 
     function gameLoop() {
-      update();
-      draw();
-      if (gameRunning) {
-        requestAnimationFrame(gameLoop);
-      }
-    }
+    if (!gameRunning) return;
+    
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+}
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+      // Reset player position based on new canvas size
+      playerY = canvas.height / 2;
+      monsterY = canvas.height / 2 - 60;
     }
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
     function gameOver(success) {
-      gameRunning = false;
-      document.getElementById('gameOver').style.display = 'block';
-      document.getElementById('finalScore').innerText = 'Your Score: ' + score;
-      backgroundMusic.pause(); // Pause background music
-      gameOverSound.play(); // Play game over sound
-      backgroundMusic.currentTime = 0; // Reset background music
+    gameRunning = false;
+    updateHighScores(score);
+    
+    // Update game over screen
+    const gameOverScreen = document.getElementById('gameOver');
+    const finalScore = document.getElementById('finalScore');
+    
+    // Set final score text based on game mode
+    const modeText = currentGameMode === GAME_MODES.MONSTER ? 'Monster Mode' : 'Endless Mode';
+    let scoreText = `${modeText}<br>Final Score: ${score}`;
+    
+    // Add high score message for endless mode
+    if (currentGameMode === GAME_MODES.ENDLESS) {
+        const scores = JSON.parse(localStorage.getItem('highScores') || '[]');
+        const isHighScore = scores.some(s => s.score < score);
+        if (isHighScore) {
+            scoreText += '<br><br>🎉 New High Score! 🎉';
+        }
     }
     
-        document.querySelectorAll('#characterSelect button').forEach(button => {
+    finalScore.innerHTML = scoreText;
+    
+    // Show game over screen with fade in
+    gameOverScreen.style.opacity = '0';
+    gameOverScreen.style.display = 'block';
+    setTimeout(() => {
+        gameOverScreen.style.opacity = '1';
+    }, 10);
+    
+    // Handle audio
+    backgroundMusic.pause();
+    gameOverSound.play();
+    backgroundMusic.currentTime = 0;
+}
+    
+    function checkCollisions() {
+        // Check obstacle collisions
+        for (const obstacle of obstacles) {
+            const bbox = obstacleBoundingBoxes[obstacle.type];
+            if (playerX < obstacle.x + bbox.width &&
+                playerX + playerSize > obstacle.x &&
+                playerY < obstacle.y + bbox.height &&
+                playerY + playerSize > obstacle.y) {
+                gameOver(false);
+                return;
+            }
+        }
+        
+        // Check skier collisions
+        for (const skier of computerSkiers) {
+            if (playerX < skier.x + skierBoundingBox.width &&
+                playerX + playerSize > skier.x &&
+                playerY < skier.y + skierBoundingBox.height &&
+                playerY + playerSize > skier.y) {
+                gameOver(false);
+                return;
+            }
+        }
+    }
+    
+    function updateHighScores(newScore) {
+    // Only update high scores for endless mode
+    if (currentGameMode !== GAME_MODES.ENDLESS) return;
+    
+    let scores = JSON.parse(localStorage.getItem('highScores') || '[]');
+    scores.push({
+        score: newScore,
+        date: new Date().toLocaleDateString(),
+        character: selectedCharacter
+    });
+    scores.sort((a, b) => b.score - a.score);
+    scores = scores.slice(0, 10); // Keep top 10 scores
+    localStorage.setItem('highScores', JSON.stringify(scores));
+    
+    // Update top 3 display
+    updateTopThreeDisplay();
+}
+
+function updateTopThreeDisplay() {
+    const scores = JSON.parse(localStorage.getItem('highScores') || '[]');
+    const topThree = scores.slice(0, 3);
+    const topThreeElement = document.getElementById('topThreeScores');
+    
+    if (topThree.length === 0) {
+        topThreeElement.innerHTML = '<div class="score-entry">No scores yet!</div>';
+        return;
+    }
+    
+    topThreeElement.innerHTML = topThree.map((score, index) => `
+        <div class="score-entry">
+            ${index + 1}. ${score.score} points
+            <small>(${new Date(score.date).toLocaleDateString()})</small>
+        </div>
+    `).join('');
+}
+
+    function showHighScores() {
+        const scores = JSON.parse(localStorage.getItem('highScores') || '[]');
+        const scoreList = document.getElementById('scoreList');
+        scoreList.innerHTML = scores.map((score, index) => 
+            `<div>${index + 1}. Score: ${score.score} - ${score.date}</div>`
+        ).join('');
+        document.getElementById('highScores').style.display = 'flex';
+    }
+
+    function closeHighScores() {
+        document.getElementById('highScores').style.display = 'none';
+    }
+
+    document.querySelectorAll('#characterSelect button').forEach(button => {
       button.addEventListener('click', playSelectSound);});
+
+    // Add this after your audio element declarations
+    document.addEventListener('DOMContentLoaded', () => {
+        // Initialize audio elements
+        selectSound.load();
+        backgroundMusic.load();
+        gameOverSound.load();
+        
+        // Ensure initial state
+        scoreDisplay.style.display = 'none';
+        document.getElementById('titleScreen').style.display = 'flex';
+        document.getElementById('startButton').disabled = true;
+        
+        // Initialize top 3 scores display
+        updateTopThreeDisplay();
+    });
+
+    // Add this helper function for warnings
+    function showWarning(message) {
+        const warning = document.getElementById('warningMessage') || createWarningElement();
+        warning.textContent = message;
+        warning.style.opacity = 1;
+        setTimeout(() => warning.style.opacity = 0, 400);
+    }
+
+    // Add this helper function to create warning element
+    function createWarningElement() {
+        const warning = document.createElement('div');
+        warning.id = 'warningMessage';
+        document.body.appendChild(warning);
+        return warning;
+    }
   </script>
 </body>
 </html>
