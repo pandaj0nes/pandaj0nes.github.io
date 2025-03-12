@@ -19,7 +19,8 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
             background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
             min-height: 100vh;
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
             color: #263238;
         }
 
@@ -136,17 +137,18 @@
 
         /* Game Screens */
         .game-screen {
-            position: fixed;
+            position: absolute; /* Change from fixed to absolute */
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
             background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
             z-index: 1000;
+            padding: 2rem 1rem;
+            overflow-y: auto; /* Enable vertical scrolling */
         }
 
         #titleScreen h1 {
@@ -266,9 +268,9 @@
 
         .character-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* Force 3 columns */
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* More responsive grid */
             gap: 1rem;
-            max-height: 60vh;
+            max-height: 50vh;
             overflow-y: auto;
             padding: 1rem;
             justify-items: center;
@@ -345,31 +347,22 @@
         }
 
         .title-image {
-            width: min(90vw, 700px);
-            height: 200px;
-            object-fit: cover;
+            width: min(90vw, 500px); /* Reduce max width */
+            height: auto; /* Change from fixed height to auto */
+            max-height: 150px; /* Add max height */
+            object-fit: contain;
             border-radius: 20px;
             margin-bottom: 1rem;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .game-setup {
-            width: min(90vw, 700px);
-            margin: 0 auto;
+            width: min(90vw, 600px);
+            margin: 1rem auto;
             padding: 1rem;
             display: flex;
             flex-direction: column;
-            gap: 2rem;
-        }
-
-        .character-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr); /* Force 3 columns */
-            gap: 1rem;
-            max-height: 60vh;
-            overflow-y: auto;
-            padding: 1rem;
-            justify-items: center;
+            gap: 1.5rem;
         }
 
         /* Media Queries for better responsive layout */
@@ -449,6 +442,41 @@
             transition: opacity 0.2s ease;
             z-index: 1000;
         }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .game-screen {
+                padding: 1rem 0.5rem;
+            }
+
+            .title-image {
+                max-height: 100px;
+            }
+
+            #titleScreen h1 {
+                font-size: clamp(24px, 6vw, 36px);
+                margin: 0.5rem 0;
+            }
+
+            .character-button {
+                max-width: 120px;
+            }
+
+            .mode-button {
+                padding: 0.75rem 1.5rem;
+                font-size: clamp(14px, 4vw, 18px);
+            }
+
+            .start-button {
+                padding: 0.75rem 2rem;
+                font-size: clamp(18px, 5vw, 24px);
+            }
+        }
+
+        /* Add smooth scrolling to the whole page */
+        html {
+            scroll-behavior: smooth;
+        }
     </style>
 </head>
 <body>
@@ -486,23 +514,23 @@
                     <span>Ralph</span>
                 </button>
                 <button onclick="selectCharacter('eriboarder.png', event)" class="character-button">
-                    <img src="eriboarder.png" alt="Eri">
-                    <span>Eri</span>
+                    <img src="eriboarder.png" alt="Ernie">
+                    <span>Ernie</span>
                 </button>
                 <button onclick="selectCharacter('joeboarder.png', event)" class="character-button">
-                    <img src="joeboarder.png" alt="Joe">
+                    <img src="joeboarder.png" alt="Joel">
                     <span>Steamboat Joe</span>
                 </button>
                 <button onclick="selectCharacter('rossskier.png', event)" class="character-button">
-                    <img src="rossskier.png" alt="Ross">
-                    <span>Rippin' Ross</span>
+                    <img src="rossskier.png" alt="Roscoe">
+                    <span>Rippin' Roscoe</span>
                 </button>
                 <button onclick="selectCharacter('keegan3.png', event)" class="character-button">
-                    <img src="keegan3.png" alt="Keegan">
+                    <img src="keegan3.png" alt="Kee">
                     <span>Steezy Kee</span>
                 </button>
                 <button onclick="selectCharacter('victor.png', event)" class="character-button">
-                    <img src="victor.png" alt="Victor">
+                    <img src="victor.png" alt="V">
                     <span>Hot Boy V</span>
                 </button>
                 <button onclick="selectCharacter('astroboarder.png', event)" class="character-button">
@@ -610,10 +638,16 @@
     let monsterSpeed = 10;
 
     const obstacleBoundingBoxes = {
-      rock: { x: 15, y: 15, width: 15, height: 18 },
-      tree: { x: 15, y: 10, width: 15, height: 32 },
-      tree2: { x: 15, y: 10, width: 15, height: 32 },
-      treeAspen: { x: 15, y: 10, width: 15, height: 32 }
+        rock: { x: 15, y: 15, width: 15, height: 18 },
+        tree: { 
+            base: { width: 40, height: 15 },  // Bottom part of tree
+            slope: 0.4  // How much the sides slope inward (adjust this value to match your tree image)
+        },
+        tree2: { 
+            base: { width: 40, height: 15 },  // Bottom part of tree
+            slope: 0.45  // Slightly different slope for tree2
+        },
+        treeAspen: { x: 15, y: 10, width: 15, height: 32 }
     };
 
     const skierBoundingBox = { 
@@ -1099,8 +1133,16 @@
 }
     
     function checkCollisions() {
-        // Check obstacle collisions
-        for (const obstacle of obstacles) {
+    // Check obstacle collisions
+    for (const obstacle of obstacles) {
+        if (obstacle.type === 'tree' || obstacle.type === 'tree2') {
+            // Use triangle collision for trees
+            if (checkTreeCollision(obstacle)) {
+                gameOver(false);
+                return;
+            }
+        } else {
+            // Use regular box collision for other obstacles
             const bbox = obstacleBoundingBoxes[obstacle.type];
             if (playerX < obstacle.x + bbox.width &&
                 playerX + playerSize > obstacle.x &&
@@ -1110,19 +1152,50 @@
                 return;
             }
         }
-        
-        // Check skier collisions
-        for (const skier of computerSkiers) {
-            if (playerX < skier.x + skierBoundingBox.width &&
-                playerX + playerSize > skier.x &&
-                playerY < skier.y + skierBoundingBox.height &&
-                playerY + playerSize > skier.y) {
-                gameOver(false);
-                return;
-            }
-        }
     }
     
+    // Check skier collisions (unchanged)
+    for (const skier of computerSkiers) {
+        if (playerX < skier.x + skierBoundingBox.width &&
+            playerX + playerSize > skier.x &&
+            playerY < skier.y + skierBoundingBox.height &&
+            playerY + playerSize > skier.y) {
+            gameOver(false);
+            return;
+        }
+    }
+}
+
+// Add this new function for tree collision detection
+function checkTreeCollision(tree) {
+    const bbox = obstacleBoundingBoxes[tree.type];
+    const baseWidth = bbox.base.width;
+    const baseHeight = bbox.base.height;
+    const slope = bbox.slope;
+    
+    // Check if player is within the base width of the tree
+    if (playerX + playerSize < tree.x || playerX > tree.x + baseWidth) {
+        return false;
+    }
+    
+    // Check if player is within the height of the tree
+    if (playerY + playerSize < tree.y || playerY > tree.y + tree.height) {
+        return false;
+    }
+    
+    // Calculate the triangle boundaries at the player's current Y position
+    const relativeY = playerY - tree.y;
+    const triangleWidth = baseWidth - (relativeY * slope * 2);
+    const triangleX = tree.x + (baseWidth - triangleWidth) / 2;
+    
+    // Check if player is within the triangle boundaries
+    if (playerX + playerSize < triangleX || playerX > triangleX + triangleWidth) {
+        return false;
+    }
+    
+    return true;
+}
+
     function updateHighScores(newScore) {
     // Only update high scores for endless mode
     if (currentGameMode !== GAME_MODES.ENDLESS) return;
