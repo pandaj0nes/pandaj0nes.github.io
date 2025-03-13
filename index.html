@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Skiing with Buddies</title>
     <link rel="icon" type="image/png" href="skier.png">
     <style>
@@ -475,6 +475,89 @@
         /* Add smooth scrolling to the whole page */
         html {
             scroll-behavior: smooth;
+        }
+
+        /* Mobile-specific adjustments */
+        @media (max-width: 768px) {
+            .game-setup {
+                width: min(95vw, 600px);
+                padding: 0.5rem;
+                gap: 1rem;
+            }
+
+            .mode-selection, .character-selection {
+                padding: 1rem;
+            }
+
+            .character-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.5rem;
+                max-height: 60vh;
+            }
+
+            .character-button {
+                max-width: 100px;
+                padding: 0.5rem;
+            }
+
+            .character-button img {
+                height: 60%;
+            }
+
+            .character-button span {
+                font-size: clamp(10px, 1.2vh, 12px);
+            }
+
+            .title-image {
+                height: 120px;
+            }
+
+            #titleScreen h1 {
+                font-size: clamp(20px, 5vw, 32px);
+                margin: 0.5rem 0;
+            }
+
+            .top-scores {
+                padding: 0.75rem 1rem;
+            }
+
+            .mode-button {
+                padding: 0.75rem 1rem;
+                font-size: clamp(12px, 3vw, 16px);
+            }
+
+            #gameOver {
+                width: 90vw;
+                padding: 1.5rem;
+            }
+
+            #scoreDisplay {
+                padding: 8px 16px;
+                font-size: clamp(14px, 2vh, 20px);
+            }
+        }
+
+        /* Prevent text selection on mobile */
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Improve touch targets */
+        button {
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        /* Ensure proper scaling on iOS */
+        @supports (-webkit-touch-callout: none) {
+            .game-screen {
+                min-height: -webkit-fill-available;
+            }
         }
     </style>
 </head>
@@ -1138,7 +1221,22 @@ function handleTouchMove(e) {
     resizeCanvas();
 
     function gameOver(success) {
+    // Immediately stop the game loop
     gameRunning = false;
+    
+    // Clear any existing intervals
+    if (window.obstacleInterval) {
+        clearInterval(window.obstacleInterval);
+    }
+    if (window.computerSkierInterval) {
+        clearInterval(window.computerSkierInterval);
+    }
+    
+    // Reset arrays
+    obstacles = [];
+    computerSkiers = [];
+    
+    // Update high scores
     updateHighScores(score);
     
     // Update game over screen
@@ -1160,17 +1258,17 @@ function handleTouchMove(e) {
     
     finalScore.innerHTML = scoreText;
     
+    // Stop all audio and play game over sound
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
+    gameOverSound.play();
+    
     // Show game over screen with fade in
     gameOverScreen.style.opacity = '0';
     gameOverScreen.style.display = 'block';
     setTimeout(() => {
         gameOverScreen.style.opacity = '1';
     }, 10);
-    
-    // Handle audio
-    backgroundMusic.pause();
-    gameOverSound.play();
-    backgroundMusic.currentTime = 0;
 }
     
     function checkCollisions() {
