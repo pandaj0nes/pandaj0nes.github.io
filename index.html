@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skiing with Buddies</title>
-    <link rel="icon" type="image/png" href="eriboarder.png">
+    <link rel="icon" type="image/png" href="skier.png">
     <style>
         /* Modern CSS Reset */
         *, *::before, *::after {
@@ -347,10 +347,9 @@
         }
 
         .title-image {
-            width: min(90vw, 500px); /* Reduce max width */
-            height: auto; /* Change from fixed height to auto */
-            max-height: 150px; /* Add max height */
-            object-fit: contain;
+            width: min(90vw, 600px); /* Match the game-setup width */
+            height: 200px; /* Set a fixed height */
+            object-fit: cover;
             border-radius: 20px;
             margin-bottom: 1rem;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -450,7 +449,7 @@
             }
 
             .title-image {
-                max-height: 100px;
+                height: 150px;
             }
 
             #titleScreen h1 {
@@ -482,7 +481,7 @@
 <body>
 <div id="titleScreen" class="game-screen">
     <img src="snowy_mountain.png" alt="Snowy Mountain" class="title-image">
-    <h1>Slope Shredders</h1>
+    <h1>Skiing with Buddies</h1>
     
     <div class="game-setup">
         <div class="top-scores">
@@ -559,7 +558,7 @@
   <!-- Add this before the canvas element -->
   <div id="gameOver" style="display: none;">
     <h2>Game Over</h2>
-    <img src="middle.png" alt="Game Over" class="game-over-image">
+    <img src="hand.png" alt="Game Over" class="game-over-image">
     <p id="finalScore"></p>
     <button onclick="restartGame()">Play Again</button>
 </div>
@@ -621,6 +620,12 @@
     const bonesImg = new Image();
     bonesImg.src = 'bones.png';
     
+    // Add this to your initialization code
+    [treeImg, tree2Img, treeAspenImg].forEach(img => {
+        img.onload = () => console.log(`Loaded ${img.src}`);
+        img.onerror = () => console.error(`Failed to load ${img.src}`);
+    });
+
     let playerX = 100;
     let playerY = canvas.height / 2;
     let playerSize = 64; // Increased from 48
@@ -672,32 +677,36 @@
 
     // Add these constants for better game balance
     const GAME_CONFIG = {
-        ENDLESS: {
-            INITIAL_SPEED: 5,
-            SPEED_INCREMENT: 0.3,        // Increased from 0.2
-            SPEED_INTERVAL: 200,         // Decreased from 300 for faster difficulty increase
-            MAX_SPEED: 14,              // Increased from 12
-            OBSTACLE_SPAWN_RATE: 0.7,
-            SKIER_SPAWN_RATE: 0.4,      // Increased from 0.2
-            OBSTACLE_SIZE: {
-                MIN: 80,
-                MAX: 120
-            }
-        },
-        MONSTER: {
-            INITIAL_SPEED: 4,
-            MONSTER_SPEED: 8,
-            WARNING_TIME: 25000, // ms before monster appears
-            CHASE_TIME: 30000,   // ms when monster starts chasing
-            OBSTACLE_SPAWN_RATE: 0.5,
-            SKIER_SPAWN_RATE: 0.15,
-            MONSTER_SIZE: 160,  // Increased from 120
-            OBSTACLE_SIZE: {
-                MIN: 80,
-                MAX: 120
-            }
+    ENDLESS: {
+        INITIAL_SPEED: 5,
+        SPEED_INCREMENT: 0.3,
+        SPEED_INTERVAL: 200,
+        MAX_SPEED: 14,
+        OBSTACLE_SPAWN_RATE: 0.7,
+        SKIER_SPAWN_RATE: 0.4,
+        OBSTACLE_SIZE: {
+            TREE: 100,
+            TREE2: 100,
+            TREEASPEN: 120,
+            ROCK: 80
         }
-    };
+    },
+    MONSTER: {
+        INITIAL_SPEED: 4,
+        MONSTER_SPEED: 8,
+        WARNING_TIME: 25000,
+        CHASE_TIME: 30000,
+        OBSTACLE_SPAWN_RATE: 0.5,
+        SKIER_SPAWN_RATE: 0.15,
+        MONSTER_SIZE: 160,
+        OBSTACLE_SIZE: {
+            TREE: 100,
+            TREE2: 100,
+            TREEASPEN: 120,
+            ROCK: 80
+        }
+    }
+};
 
     // Initialize game state variables
     let currentGameState = GAME_STATES.TITLE;
@@ -752,8 +761,13 @@
     // Load the character image before starting
     playerImg = new Image();
     playerImg.onload = () => {
+        console.log("Player image loaded successfully");
         startGame(selectedCharacter);
     };
+    playerImg.onerror = () => {
+        console.error("Failed to load player image:", selectedCharacter);
+    };
+    console.log("Loading player image:", selectedCharacter);
     playerImg.src = selectedCharacter;
 }
 
@@ -778,11 +792,11 @@
     difficultyLevel = 1;
     lastSpeedIncrease = 0;
     
-    // Reset positions
+    // Reset positions - update this part
     playerX = 100;
-    playerY = canvas.height / 2;
+    playerY = canvas.height * 0.3 + 50; // Start just below mountains
     monsterX = canvas.width;
-    monsterY = canvas.height / 2 - 60;
+    monsterY = canvas.height * 0.3 + 50; // Adjust monster start position too
     
     // Clear arrays
     obstacles = [];
@@ -843,108 +857,130 @@
     canvas.addEventListener('touchmove', handleTouchMove, false);
 
     function handleTouchStart(e) {
-      if (!gameRunning) return;
-      const touch = e.touches[0];
-      playerY = touch.clientY - playerSize / 2;
-    }
+    if (!gameRunning) return;
+    const touch = e.touches[0];
+    const mountainHeight = canvas.height * 0.3;
+    playerY = Math.max(
+        mountainHeight,
+        Math.min(canvas.height - playerSize - 50, touch.clientY - playerSize / 2)
+    );
+}
 
-    function handleTouchMove(e) {
-      if (!gameRunning) return;
-      const touch = e.touches[0];
-      playerY = touch.clientY - playerSize / 2;
-      e.preventDefault();
-    }
+function handleTouchMove(e) {
+    if (!gameRunning) return;
+    const touch = e.touches[0];
+    const mountainHeight = canvas.height * 0.3;
+    playerY = Math.max(
+        mountainHeight,
+        Math.min(canvas.height - playerSize - 50, touch.clientY - playerSize / 2)
+    );
+    e.preventDefault();
+}
 
     function generateObstacles() {
-    const playAreaTop = canvas.height * 0.3 + 50;
+    // Clear any existing interval
+    if (window.obstacleInterval) {
+        clearInterval(window.obstacleInterval);
+    }
+
+    const playAreaTop = canvas.height * 0.3;
     const playAreaBottom = canvas.height - 50;
     const playableHeight = playAreaBottom - playAreaTop;
 
-    setInterval(() => {
+    window.obstacleInterval = setInterval(() => {
         if (!gameRunning) return;
-        if (Math.random() < 0.8) {
-            let type = Math.random();
-            let obstacleType;
-            if (type < 0.33) {
-                obstacleType = 'tree';
-            } else if (type < 0.66) {
-                obstacleType = 'tree2';
-            } else {
-                obstacleType = 'treeAspen';
-            }
-            
-            let size = GAME_CONFIG.ENDLESS.OBSTACLE_SIZE.MIN + 
-                      Math.random() * (GAME_CONFIG.ENDLESS.OBSTACLE_SIZE.MAX - GAME_CONFIG.ENDLESS.OBSTACLE_SIZE.MIN);
-            
-            if (obstacleType === 'treeAspen') {
-                size *= 1.3;
-            }
-            
-            obstacles.push({
-                x: canvas.width,
-                y: playAreaTop + Math.random() * playableHeight,
-                width: size,
-                height: size,
-                type: obstacleType
-            });
+        
+        const type = Math.random();
+        let obstacleType;
+        let size;
+        
+        if (type < 0.25) {
+            obstacleType = 'tree';
+            size = 100;
+        } else if (type < 0.5) {
+            obstacleType = 'tree2';
+            size = 100;
+        } else if (type < 0.75) {
+            obstacleType = 'treeAspen';
+            size = 120;
+        } else {
+            obstacleType = 'rock';
+            size = 80;
         }
-    }, 400);
+        
+        obstacles.push({
+            x: canvas.width,
+            y: playAreaTop + Math.random() * (playableHeight - size),
+            width: size,
+            height: size,
+            type: obstacleType
+        });
+    }, 1000);
 }
 
     function generateComputerSkiers() {
-    const playAreaTop = canvas.height * 0.3 + 50;
+    const playAreaTop = canvas.height * 0.3;
     const playAreaBottom = canvas.height - 50;
     const playableHeight = playAreaBottom - playAreaTop;
 
-    setInterval(() => {
+    // Clear any existing interval
+    if (window.computerSkierInterval) {
+        clearInterval(window.computerSkierInterval);
+    }
+
+    window.computerSkierInterval = setInterval(() => {
         if (!gameRunning) return;
-        if (Math.random() < GAME_CONFIG.ENDLESS.SKIER_SPAWN_RATE) {
-            const verticalOffset = Math.random() * playableHeight;
+        if (Math.random() < 0.3) { // Increased spawn rate for testing
             computerSkiers.push({
-                x: canvas.width + Math.random() * 200,
-                y: playAreaTop + verticalOffset,
+                x: canvas.width + 64,
+                y: playAreaTop + Math.random() * (playableHeight - 64),
                 width: 64,
                 height: 64,
-                speed: 2 + Math.random() * 3,      // Slightly reduced speed variation
+                speed: gameSpeed * 0.6, // Increased speed ratio
                 verticalDirection: Math.random() < 0.5 ? -1 : 1,
-                verticalSpeed: 0.5 + Math.random(), // Slower vertical movement
+                verticalSpeed: 0.5 + Math.random() * 0.5,
                 lastDirectionChange: Date.now()
             });
+            console.log("Generated new computer skier", computerSkiers.length); // Debug log
         }
-    }, 800);  // Decreased from 1000 for more frequent spawns
+    }, 1500); // Spawn check every 1.5 seconds
 }
 
     function updateObstacles() {
-    // Update obstacles
+    // Update obstacles with smoother movement
     for (const obstacle of obstacles) {
         obstacle.x -= gameSpeed;
     }
     
     // Update computer skiers with smoother movement
     for (const skier of computerSkiers) {
-        skier.x -= (gameSpeed + skier.speed);
+        // Move relative to player speed
+        skier.x -= (gameSpeed - skier.speed);
         
-        // Smoother vertical movement
-        if (Date.now() - skier.lastDirectionChange > 2000) {  // Change direction every 2 seconds
+        // Vertical movement
+        if (Date.now() - skier.lastDirectionChange > 2000) {
             skier.verticalDirection *= -1;
             skier.lastDirectionChange = Date.now();
         }
 
-        // Apply vertical movement with boundaries
         const newY = skier.y + (skier.verticalSpeed * skier.verticalDirection);
-        const playAreaTop = canvas.height * 0.3 + 50;
+        const playAreaTop = canvas.height * 0.3;
         const playAreaBottom = canvas.height - 50;
         
         if (newY > playAreaTop && newY < playAreaBottom - skier.height) {
             skier.y = newY;
         } else {
-            skier.verticalDirection *= -1;  // Reverse direction at boundaries
+            skier.verticalDirection *= -1;
         }
     }
     
     // Clean up off-screen objects
     obstacles = obstacles.filter(obstacle => obstacle.x + obstacle.width > 0);
-    computerSkiers = computerSkiers.filter(skier => skier.x + skier.width > 0);
+    const originalLength = computerSkiers.length;
+    computerSkiers = computerSkiers.filter(skier => skier.x > -64);
+    if (originalLength !== computerSkiers.length) {
+        console.log("Removed off-screen skiers", originalLength - computerSkiers.length); // Debug log
+    }
 }
 
     function update() {
@@ -964,10 +1000,16 @@
         handleEndlessMode();
     }
 
-    // Update player position
+    // Update player position with mountain boundary
+    const mountainHeight = canvas.height * 0.3; // Match mountain height
     if (keys.ArrowUp) playerY -= 5;
     if (keys.ArrowDown) playerY += 5;
-    playerY = Math.max(180, Math.min(canvas.height - 140, playerY));
+    
+    // Constrain player to area below mountains and above bottom
+    playerY = Math.max(
+        mountainHeight, // Top boundary is mountain height
+        Math.min(canvas.height - playerSize - 50, playerY) // Bottom boundary
+    );
 
     updateObstacles();
     checkCollisions();
@@ -1031,9 +1073,9 @@
     ctx.fillStyle = '#87CEEB';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Draw mountains at the top third of the screen
+    // Draw mountains and ground
     let bgX = -(progress * 0.5) % canvas.width;
-    const mountainHeight = canvas.height * 0.3; // Reduce mountain height to 30% of screen
+    const mountainHeight = canvas.height * 0.3;
     ctx.drawImage(mountainsImg, bgX, 0, canvas.width, mountainHeight);
     ctx.drawImage(mountainsImg, bgX + canvas.width, 0, canvas.width, mountainHeight);
     
@@ -1041,40 +1083,39 @@
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, mountainHeight, canvas.width, canvas.height - mountainHeight);
     
-    // Define play area
-    const playAreaTop = mountainHeight + 50;
-    const playAreaBottom = canvas.height - 50;
-    
-    // Draw obstacles only in play area
+    // Draw obstacles
     obstacles.forEach(obstacle => {
         let img;
         switch(obstacle.type) {
-            case 'rock': img = rockImg; break;
+            case 'tree': img = treeImg; break;
             case 'tree2': img = tree2Img; break;
             case 'treeAspen': img = treeAspenImg; break;
+            case 'rock': img = rockImg; break;
             default: img = treeImg;
         }
-        ctx.drawImage(img, obstacle.x, 
-                     Math.max(playAreaTop, Math.min(playAreaBottom - obstacle.height, obstacle.y)), 
-                     obstacle.width, obstacle.height);
+        
+        if (img && img.complete) {
+            ctx.drawImage(img, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+        }
     });
     
-    // Draw computer skiers in play area
+    // Draw computer skiers
     computerSkiers.forEach(skier => {
-        ctx.drawImage(skierImg, skier.x, 
-                     Math.max(playAreaTop, Math.min(playAreaBottom - skier.height, skier.y)),
-                     skier.width, skier.height);
+        if (skierImg && skierImg.complete) {
+            ctx.drawImage(skierImg, skier.x, skier.y, skier.width, skier.height);
+        }
     });
     
-    // Constrain player to play area
-    playerY = Math.max(playAreaTop, Math.min(playAreaBottom - playerSize, playerY));
-    ctx.drawImage(playerImg, playerX, playerY, playerSize, playerSize);
+    // Draw player character
+    if (playerImg && playerImg.complete) {
+        ctx.drawImage(playerImg, playerX, playerY, playerSize, playerSize);
+    }
     
     // Draw monster in monster mode
-    if (currentGameMode === GAME_MODES.MONSTER && Date.now() - startTime >= 30000) {
-        ctx.drawImage(monsterImg, monsterX, monsterY, 
-                      GAME_CONFIG.MONSTER.MONSTER_SIZE, 
-                      GAME_CONFIG.MONSTER.MONSTER_SIZE);
+    if (currentGameMode === GAME_MODES.MONSTER && Date.now() - startTime >= GAME_CONFIG.MONSTER.CHASE_TIME) {
+        if (monsterImg && monsterImg.complete) {
+            ctx.drawImage(monsterImg, monsterX, monsterY, GAME_CONFIG.MONSTER.MONSTER_SIZE, GAME_CONFIG.MONSTER.MONSTER_SIZE);
+        }
     }
 }
 
@@ -1135,31 +1176,29 @@
     function checkCollisions() {
     // Check obstacle collisions
     for (const obstacle of obstacles) {
-        if (obstacle.type === 'tree' || obstacle.type === 'tree2') {
-            // Use triangle collision for trees
+        if (obstacle.type === 'tree' || obstacle.type === 'tree2' || obstacle.type === 'treeAspen') {
             if (checkTreeCollision(obstacle)) {
                 gameOver(false);
                 return;
             }
         } else {
-            // Use regular box collision for other obstacles
-            const bbox = obstacleBoundingBoxes[obstacle.type];
-            if (playerX < obstacle.x + bbox.width &&
-                playerX + playerSize > obstacle.x &&
-                playerY < obstacle.y + bbox.height &&
-                playerY + playerSize > obstacle.y) {
+            // Use regular box collision for rocks
+            if (playerX < obstacle.x + obstacle.width * 0.6 &&
+                playerX + playerSize > obstacle.x + obstacle.width * 0.2 &&
+                playerY < obstacle.y + obstacle.height * 0.8 &&
+                playerY + playerSize > obstacle.y + obstacle.height * 0.2) {
                 gameOver(false);
                 return;
             }
         }
     }
     
-    // Check skier collisions (unchanged)
+    // Check skier collisions
     for (const skier of computerSkiers) {
-        if (playerX < skier.x + skierBoundingBox.width &&
-            playerX + playerSize > skier.x &&
-            playerY < skier.y + skierBoundingBox.height &&
-            playerY + playerSize > skier.y) {
+        if (playerX < skier.x + skier.width * 0.8 &&
+            playerX + playerSize > skier.x + skier.width * 0.2 &&
+            playerY < skier.y + skier.height * 0.8 &&
+            playerY + playerSize > skier.y + skier.height * 0.2) {
             gameOver(false);
             return;
         }
@@ -1168,32 +1207,27 @@
 
 // Add this new function for tree collision detection
 function checkTreeCollision(tree) {
-    const bbox = obstacleBoundingBoxes[tree.type];
-    const baseWidth = bbox.base.width;
-    const baseHeight = bbox.base.height;
-    const slope = bbox.slope;
-    
-    // Check if player is within the base width of the tree
-    if (playerX + playerSize < tree.x || playerX > tree.x + baseWidth) {
+    // Check basic bounding box first
+    if (playerX + playerSize < tree.x || 
+        playerX > tree.x + tree.width ||
+        playerY + playerSize < tree.y ||
+        playerY > tree.y + tree.height) {
         return false;
     }
+
+    // If we're in the bounding box, do more precise collision
+    const centerX = playerX + playerSize / 2;
+    const centerY = playerY + playerSize / 2;
+    const treeBaseWidth = tree.width * 0.5; // Make collision area smaller than visual tree
+    const treeCenterX = tree.x + tree.width / 2;
     
-    // Check if player is within the height of the tree
-    if (playerY + playerSize < tree.y || playerY > tree.y + tree.height) {
-        return false;
-    }
+    // Calculate triangle collision
+    const relativeY = centerY - tree.y;
+    const maxWidth = treeBaseWidth * (1 - (relativeY / tree.height));
+    const currentWidth = Math.max(maxWidth, treeBaseWidth * 0.2); // Minimum width at top
     
-    // Calculate the triangle boundaries at the player's current Y position
-    const relativeY = playerY - tree.y;
-    const triangleWidth = baseWidth - (relativeY * slope * 2);
-    const triangleX = tree.x + (baseWidth - triangleWidth) / 2;
-    
-    // Check if player is within the triangle boundaries
-    if (playerX + playerSize < triangleX || playerX > triangleX + triangleWidth) {
-        return false;
-    }
-    
-    return true;
+    // Check if player center is within the triangle
+    return Math.abs(centerX - treeCenterX) < currentWidth / 2;
 }
 
     function updateHighScores(newScore) {
