@@ -31,6 +31,8 @@
             left: 0;
             width: 100vw;
             height: 100vh;
+            height: -webkit-fill-available;
+            height: 100dvh;
             display: none;
             touch-action: none;
             background: #f0f9ff;
@@ -703,9 +705,7 @@
     const bonesImg = new Image();
     bonesImg.src = 'bones.png';
     
-    // Add this to your initialization code
     [treeImg, tree2Img, treeAspenImg].forEach(img => {
-        img.onload = () => console.log(`Loaded ${img.src}`);
         img.onerror = () => console.error(`Failed to load ${img.src}`);
     });
 
@@ -719,7 +719,8 @@
     let obstacles = [];
     let computerSkiers = [];
     let keys = {};
-    let score = 0; // Add this line
+    let score = 0;
+    let lastDisplayedScore = -1;
 
     let monsterX = canvas.width;
     let monsterY = canvas.height / 2 - 60;
@@ -798,6 +799,8 @@
     let difficultyLevel = 1;
     let gameSpeed = 5;
     let lastSpeedIncrease = 0;
+    let currentSkierSpawnRate = 0.4;
+    let currentObstacleSpawnRate = 0.7;
 
     function selectGameMode(mode) {
         currentGameMode = mode;
@@ -843,14 +846,8 @@
     
     // Load the character image before starting
     playerImg = new Image();
-    playerImg.onload = () => {
-        console.log("Player image loaded successfully");
-        startGame(selectedCharacter);
-    };
-    playerImg.onerror = () => {
-        console.error("Failed to load player image:", selectedCharacter);
-    };
-    console.log("Loading player image:", selectedCharacter);
+    playerImg.onload = () => startGame(selectedCharacter);
+    playerImg.onerror = () => console.error("Failed to load player image:", selectedCharacter);
     playerImg.src = selectedCharacter;
 }
 
@@ -864,6 +861,7 @@
     gameRunning = true;
     progress = 0;
     score = 0;
+    lastDisplayedScore = -1;
     
     // Show and reset score display
     scoreDisplay.style.display = 'block';
@@ -874,6 +872,8 @@
     gameSpeed = 5;
     difficultyLevel = 1;
     lastSpeedIncrease = 0;
+    currentSkierSpawnRate = GAME_CONFIG.ENDLESS.SKIER_SPAWN_RATE;
+    currentObstacleSpawnRate = GAME_CONFIG.ENDLESS.OBSTACLE_SPAWN_RATE;
     
     // Reset positions - update this part
     playerX = 100;
@@ -940,25 +940,27 @@
     canvas.addEventListener('touchmove', handleTouchMove, false);
 
     function handleTouchStart(e) {
-    if (!gameRunning) return;
-    const touch = e.touches[0];
-    const mountainHeight = canvas.height * 0.3;
-    playerY = Math.max(
-        mountainHeight,
-        Math.min(canvas.height - playerSize - 50, touch.clientY - playerSize / 2)
-    );
-}
+        if (!gameRunning) return;
+        const touch = e.touches[0];
+        const mountainHeight = canvas.height * 0.3;
+        playerY = Math.max(
+            mountainHeight,
+            Math.min(canvas.height - playerSize - 50, touch.clientY - playerSize / 2)
+        );
+        playerX = Math.max(0, Math.min(canvas.width - playerSize, touch.clientX - playerSize / 2));
+    }
 
-function handleTouchMove(e) {
-    if (!gameRunning) return;
-    const touch = e.touches[0];
-    const mountainHeight = canvas.height * 0.3;
-    playerY = Math.max(
-        mountainHeight,
-        Math.min(canvas.height - playerSize - 50, touch.clientY - playerSize / 2)
-    );
-    e.preventDefault();
-}
+    function handleTouchMove(e) {
+        if (!gameRunning) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const mountainHeight = canvas.height * 0.3;
+        playerY = Math.max(
+            mountainHeight,
+            Math.min(canvas.height - playerSize - 50, touch.clientY - playerSize / 2)
+        );
+        playerX = Math.max(0, Math.min(canvas.width - playerSize, touch.clientX - playerSize / 2));
+    }
 
     function generateObstacles() {
     // Clear any existing interval
@@ -1013,18 +1015,17 @@ function handleTouchMove(e) {
 
     window.computerSkierInterval = setInterval(() => {
         if (!gameRunning) return;
-        if (Math.random() < 0.3) { // Increased spawn rate for testing
+        if (Math.random() < 0.3) {
             computerSkiers.push({
                 x: canvas.width + 64,
                 y: playAreaTop + Math.random() * (playableHeight - 64),
                 width: 64,
                 height: 64,
-                speed: gameSpeed * 0.6, // Increased speed ratio
+                speed: gameSpeed * 0.6,
                 verticalDirection: Math.random() < 0.5 ? -1 : 1,
                 verticalSpeed: 0.5 + Math.random() * 0.5,
                 lastDirectionChange: Date.now()
             });
-            console.log("Generated new computer skier", computerSkiers.length); // Debug log
         }
     }, 1500); // Spawn check every 1.5 seconds
 }
@@ -1059,11 +1060,7 @@ function handleTouchMove(e) {
     
     // Clean up off-screen objects
     obstacles = obstacles.filter(obstacle => obstacle.x + obstacle.width > 0);
-    const originalLength = computerSkiers.length;
     computerSkiers = computerSkiers.filter(skier => skier.x > -64);
-    if (originalLength !== computerSkiers.length) {
-        console.log("Removed off-screen skiers", originalLength - computerSkiers.length); // Debug log
-    }
 }
 
     function update() {
@@ -1072,9 +1069,12 @@ function handleTouchMove(e) {
     progress += gameSpeed;
     score = Math.floor(progress / 10);
     
-    // Update score display with current game mode
-    const modePrefix = currentGameMode === GAME_MODES.MONSTER ? 'Monster: ' : 'Score: ';
-    scoreDisplay.textContent = `${modePrefix}${score}`;
+    // Update score display only when score changes
+    if (score !== lastDisplayedScore) {
+        const modePrefix = currentGameMode === GAME_MODES.MONSTER ? 'Monster: ' : 'Score: ';
+        scoreDisplay.textContent = `${modePrefix}${score}`;
+        lastDisplayedScore = score;
+    }
     
     // Handle different game modes
     if (currentGameMode === GAME_MODES.MONSTER) {
@@ -1085,14 +1085,19 @@ function handleTouchMove(e) {
 
     // Update player position with mountain boundary
     const mountainHeight = canvas.height * 0.3; // Match mountain height
-    if (keys.ArrowUp) playerY -= 5;
-    if (keys.ArrowDown) playerY += 5;
-    
-    // Constrain player to area below mountains and above bottom
+    const moveSpeed = 5;
+    if (keys.ArrowUp || keys['w'] || keys['W']) playerY -= moveSpeed;
+    if (keys.ArrowDown || keys['s'] || keys['S']) playerY += moveSpeed;
+    if (keys.ArrowLeft || keys['a'] || keys['A']) playerX -= moveSpeed;
+    if (keys.ArrowRight || keys['d'] || keys['D']) playerX += moveSpeed;
+
+    // Constrain player vertically (below mountains, above bottom)
     playerY = Math.max(
-        mountainHeight, // Top boundary is mountain height
-        Math.min(canvas.height - playerSize - 50, playerY) // Bottom boundary
+        mountainHeight,
+        Math.min(canvas.height - playerSize - 50, playerY)
     );
+    // Constrain player horizontally
+    playerX = Math.max(0, Math.min(canvas.width - playerSize, playerX));
 
     updateObstacles();
     checkCollisions();
@@ -1131,17 +1136,17 @@ function handleTouchMove(e) {
 
     function handleEndlessMode() {
         const config = GAME_CONFIG.ENDLESS;
-        
+
         if (score > lastSpeedIncrease + config.SPEED_INTERVAL && gameSpeed < config.MAX_SPEED) {
             gameSpeed = Math.min(
-                config.MAX_SPEED, 
+                config.MAX_SPEED,
                 config.INITIAL_SPEED + (Math.floor(score / config.SPEED_INTERVAL) * config.SPEED_INCREMENT)
             );
-            
-            // Increase spawn rates with difficulty
-            config.SKIER_SPAWN_RATE = Math.min(0.6, 0.4 + (difficultyLevel * 0.05));
-            config.OBSTACLE_SPAWN_RATE = Math.min(0.8, 0.7 + (difficultyLevel * 0.02));
-            
+
+            // Increase spawn rates with difficulty (use local vars, not config)
+            currentSkierSpawnRate = Math.min(0.6, 0.4 + (difficultyLevel * 0.05));
+            currentObstacleSpawnRate = Math.min(0.8, 0.7 + (difficultyLevel * 0.02));
+
             difficultyLevel++;
             lastSpeedIncrease = score;
         }
