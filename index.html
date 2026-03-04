@@ -5,15 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Skiing with Buddies</title>
     <link rel="icon" type="image/png" href="skier.png">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        /* Modern CSS Reset */
         *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-        /* Base styles */
+        :root {
+            --snow: #f0f8ff;
+            --ice-blue: #b8e0f7;
+            --sky: #87CEEB;
+            --pine: #2d6a4f;
+            --midnight: #1a1a2e;
+            --gold: #ffd700;
+            --danger: #ff4444;
+            --pixel-font: 'Press Start 2P', monospace;
+        }
+
+        html { scroll-behavior: smooth; }
+
         body {
             margin: 0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -24,122 +36,119 @@
             color: #263238;
         }
 
-        /* Game Canvas */
         #gameCanvas {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
             display: none;
             touch-action: none;
-            background: #f0f9ff;
+            background: #87CEEB;
             z-index: 1;
+            image-rendering: pixelated;
         }
 
-        /* Game Over Screen */
+        /* ── GAME OVER ── */
         #gameOver {
             position: fixed;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.95);
-            padding: clamp(2rem, 4vh, 4rem);
-            border-radius: 20px;
+            background: #1a1a2e;
+            border: 4px solid var(--gold);
+            padding: clamp(1.5rem, 4vh, 3rem) clamp(1.5rem, 4vw, 3rem);
+            border-radius: 4px;
             text-align: center;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 0 8px #0f3460, 0 0 40px rgba(255,215,0,0.3);
             z-index: 2000;
+            transition: opacity 0.3s ease;
+            image-rendering: pixelated;
         }
 
         #gameOver h2 {
-            font-size: clamp(28px, 4vh, 48px);
+            font-family: var(--pixel-font);
+            font-size: clamp(16px, 3vh, 28px);
             margin-bottom: 1.5rem;
-            color: #1976d2;
-            text-transform: uppercase;
+            color: var(--danger);
+            text-shadow: 3px 3px 0 #800000;
             letter-spacing: 2px;
         }
 
         #gameOver .game-over-image {
-            width: min(200px, 40vw);
+            width: min(160px, 35vw);
             height: auto;
             margin: 1rem auto;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            image-rendering: pixelated;
         }
 
         #gameOver #finalScore {
-            font-size: clamp(18px, 2.5vh, 24px);
+            font-family: var(--pixel-font);
+            font-size: clamp(10px, 1.8vh, 14px);
             margin: 1rem 0;
-            color: #333;
+            color: var(--snow);
+            line-height: 2;
         }
 
         #gameOver button {
-            background: #2196f3;
-            color: white;
+            font-family: var(--pixel-font);
+            background: var(--gold);
+            color: #1a1a2e;
             border: none;
-            border-radius: 8px;
-            padding: 12px 32px;
-            font-size: clamp(16px, 2vh, 20px);
+            border-radius: 2px;
+            padding: 12px 24px;
+            font-size: clamp(10px, 1.8vh, 14px);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.1s ease;
             margin-top: 1rem;
+            box-shadow: 4px 4px 0 #b8860b;
         }
 
         #gameOver button:hover {
-            background: #1976d2;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #b8860b;
+        }
+        #gameOver button:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 #b8860b;
         }
 
-        /* Score Display */
+        /* ── SCORE HUD ── */
         #scoreDisplay {
             position: fixed;
-            bottom: clamp(1rem, 2vh, 2rem);
-            left: clamp(1rem, 2vw, 2rem);
-            background: rgba(33, 33, 33, 0.85);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: clamp(16px, 2.4vh, 24px);
-            backdrop-filter: blur(4px);
-            font-weight: 500;
-            z-index: 1000; /* Ensure it's above other elements */
-            pointer-events: none; /* Prevent it from interfering with game controls */
+            bottom: clamp(0.8rem, 2vh, 1.5rem);
+            left: clamp(0.8rem, 2vw, 1.5rem);
+            background: rgba(26, 26, 46, 0.9);
+            color: var(--gold);
+            padding: 10px 18px;
+            border: 2px solid var(--gold);
+            border-radius: 2px;
+            font-family: var(--pixel-font);
+            font-size: clamp(10px, 1.8vh, 16px);
+            z-index: 1000;
+            pointer-events: none;
+            box-shadow: 3px 3px 0 #b8860b;
         }
 
-        /* Mobile Optimizations */
-        @media (max-width: 768px) {
-            #characterSelect {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-                padding: 16px;
-                width: 95vw;
-            }
-
-            #characterSelect button {
-                padding: 8px;
-                font-size: 14px;
-            }
-
-            #gameOver {
-                width: 90vw;
-                max-width: 400px;
-            }
+        /* Power-up HUD */
+        #powerupDisplay {
+            position: fixed;
+            bottom: clamp(0.8rem, 2vh, 1.5rem);
+            right: clamp(0.8rem, 2vw, 1.5rem);
+            background: rgba(26, 26, 46, 0.9);
+            color: #fff;
+            padding: 10px 18px;
+            border: 2px solid #4fc3f7;
+            border-radius: 2px;
+            font-family: var(--pixel-font);
+            font-size: clamp(9px, 1.5vh, 13px);
+            z-index: 1000;
+            pointer-events: none;
+            display: none;
+            box-shadow: 3px 3px 0 #0277bd;
         }
 
-        @media (max-height: 600px) {
-            #characterSelect {
-                max-height: 90vh;
-                overflow-y: auto;
-            }
-        }
-
-        /* Game Screens */
+        /* ── GAME SCREEN (TITLE) ── */
         .game-screen {
-            position: absolute; /* Change from fixed to absolute */
-            top: 0;
-            left: 0;
+            position: absolute;
+            top: 0; left: 0;
             width: 100%;
             min-height: 100vh;
             display: flex;
@@ -148,77 +157,64 @@
             background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
             z-index: 1000;
             padding: 2rem 1rem;
-            overflow-y: auto; /* Enable vertical scrolling */
+            overflow-y: auto;
         }
 
         #titleScreen h1 {
             font-size: clamp(32px, 6vw, 64px);
             margin-bottom: 2rem;
             color: #1976d2;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
-        .mode-select {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .mode-select button {
-            padding: 1rem 2rem;
-            font-size: clamp(16px, 2vw, 24px);
-            border: none;
-            border-radius: 8px;
-            background: #2196f3;
-            color: white;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .mode-select button:hover {
-            background: #1976d2;
-            transform: translateY(-2px);
-        }
-
-        /* Add these styles to your CSS */
-        #highScores {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 2rem;
+        .title-image {
+            width: min(90vw, 600px);
+            height: 200px;
+            object-fit: cover;
             border-radius: 20px;
-            text-align: center;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 90vw;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        #scoreList {
-            margin: 1rem 0;
-            font-size: 1.2rem;
-            text-align: left;
-        }
-
-        #scoreList div {
-            padding: 0.5rem;
-            border-bottom: 1px solid #eee;
-        }
-
-        /* Add to your existing styles */
         .game-setup {
+            width: min(90vw, 600px);
+            margin: 1rem auto;
+            padding: 1rem;
             display: flex;
             flex-direction: column;
-            gap: 2rem;
-            width: 90%;
-            max-width: 1200px;
-            margin: 2rem auto;
+            gap: 1.5rem;
         }
 
+        /* Top Scores */
+        .top-scores {
+            background: rgba(255,255,255,0.95);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .top-scores h3 {
+            color: #1976d2;
+            margin-bottom: 0.5rem;
+            font-size: clamp(18px, 2.5vw, 24px);
+        }
+
+        .top-scores .score-entry {
+            font-size: clamp(16px, 2vw, 20px);
+            padding: 0.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            color: #263238;
+        }
+
+        .top-scores .score-entry:last-child { border-bottom: none; }
+
+        /* Mode/Character Selection */
         .mode-selection, .character-selection {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255,255,255,0.95);
             padding: 1.5rem;
             border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
 
         .mode-selection h2, .character-selection h2 {
@@ -248,27 +244,25 @@
             text-align: center;
         }
 
-        .mode-button h3 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.1em;
-        }
+        .mode-button h3 { margin: 0 0 0.5rem; font-size: 1.1em; }
+        .mode-button p  { margin: 0; font-size: 0.9em; opacity: 0.8; }
 
-        .mode-button p {
-            margin: 0;
-            font-size: 0.9em;
-            opacity: 0.8;
+        .mode-button:hover {
+            background: #e3f2fd;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33,150,243,0.2);
         }
 
         .mode-button.selected {
             background: #2196f3;
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+            box-shadow: 0 4px 12px rgba(33,150,243,0.3);
         }
 
         .character-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* More responsive grid */
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 1rem;
             max-height: 50vh;
             overflow-y: auto;
@@ -311,14 +305,14 @@
         .character-button:hover {
             transform: translateY(-2px);
             border-color: #90caf9;
-            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+            box-shadow: 0 4px 12px rgba(33,150,243,0.2);
         }
 
         .character-button.selected {
             background: #e3f2fd;
             border-color: #2196f3;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+            box-shadow: 0 4px 12px rgba(33,150,243,0.3);
         }
 
         .start-button {
@@ -343,229 +337,113 @@
 
         .start-button:not(:disabled):hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+            box-shadow: 0 4px 12px rgba(33,150,243,0.3);
+            background: #1976d2;
         }
 
-        .title-image {
-            width: min(90vw, 600px); /* Match the game-setup width */
-            height: 200px; /* Set a fixed height */
-            object-fit: cover;
-            border-radius: 20px;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .game-setup {
-            width: min(90vw, 600px);
-            margin: 1rem auto;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        /* Media Queries for better responsive layout */
-        @media (max-width: 768px) {
-            .character-grid {
-                grid-template-columns: repeat(2, 1fr); /* Switch to 2 columns on mobile */
-            }
-            
-            .mode-button {
-                min-width: unset;
-                width: 100%;
-            }
-        }
-
-        @media (max-height: 800px) {
-            .character-grid {
-                max-height: 50vh;
-            }
-        }
-
-        /* Add to your existing styles */
-        .top-scores {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .top-scores h3 {
-            color: #1976d2;
-            margin-bottom: 0.5rem;
-            font-size: clamp(18px, 2.5vw, 24px);
-        }
-
-        .top-scores .score-entry {
-            font-size: clamp(16px, 2vw, 20px);
-            padding: 0.5rem;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .top-scores .score-entry:last-child {
-            border-bottom: none;
-        }
-
-        /* Add this CSS for the warning message */
+        /* Warning flash */
         #warningMessage {
             position: fixed;
-            top: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 0, 0, 0.8);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            font-size: clamp(18px, 2.5vw, 24px);
-            text-align: center;
-            z-index: 2000;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-        }
-
-        #warningMessage {
-            position: fixed;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(255, 0, 0, 0.8);
+            background: rgba(180, 0, 0, 0.9);
             color: white;
-            padding: 1rem 2rem;
-            border-radius: 8px;
-            font-size: clamp(24px, 4vw, 36px);
+            padding: 0.8rem 1.5rem;
+            border: 3px solid #ff6666;
+            font-family: var(--pixel-font);
+            font-size: clamp(14px, 3vw, 22px);
             font-weight: bold;
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.2s ease;
-            z-index: 1000;
+            z-index: 1500;
+            text-shadow: 2px 2px 0 #800;
+            box-shadow: 4px 4px 0 #800;
         }
 
-        /* Mobile Optimizations */
+        /* Powerup notification */
+        #powerupNotif {
+            position: fixed;
+            top: 20%; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(26,26,46,0.95);
+            color: var(--gold);
+            padding: 0.6rem 1.2rem;
+            border: 2px solid var(--gold);
+            font-family: var(--pixel-font);
+            font-size: clamp(10px, 2vw, 14px);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1500;
+            box-shadow: 3px 3px 0 #b8860b;
+        }
+
+        /* Mobile */
         @media (max-width: 768px) {
-            .game-screen {
-                padding: 1rem 0.5rem;
-            }
-
-            .title-image {
-                height: 150px;
-            }
-
-            #titleScreen h1 {
-                font-size: clamp(24px, 6vw, 36px);
-                margin: 0.5rem 0;
-            }
-
-            .character-button {
-                max-width: 120px;
-            }
-
-            .mode-button {
-                padding: 0.75rem 1.5rem;
-                font-size: clamp(14px, 4vw, 18px);
-            }
-
-            .start-button {
-                padding: 0.75rem 2rem;
-                font-size: clamp(18px, 5vw, 24px);
-            }
+            .character-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+            .mode-button { min-width: unset; width: 100%; padding: 0.75rem 1rem; font-size: clamp(12px, 3vw, 16px); }
+            .title-image { height: 120px; }
+            #titleScreen h1 { font-size: clamp(20px, 5vw, 32px); margin: 0.5rem 0; }
+            .character-button { max-width: 100px; padding: 0.5rem; }
+            .start-button { padding: 0.75rem 2rem; font-size: clamp(18px, 5vw, 24px); }
+            .game-setup { width: min(95vw, 600px); padding: 0.5rem; gap: 1rem; }
+            .mode-selection, .character-selection { padding: 1rem; }
         }
 
-        /* Add smooth scrolling to the whole page */
-        html {
-            scroll-behavior: smooth;
+        @media (max-height: 700px) {
+            .character-grid { max-height: 40vh; }
         }
 
-        /* Mobile-specific adjustments */
-        @media (max-width: 768px) {
-            .game-setup {
-                width: min(95vw, 600px);
-                padding: 0.5rem;
-                gap: 1rem;
-            }
-
-            .mode-selection, .character-selection {
-                padding: 1rem;
-            }
-
-            .character-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 0.5rem;
-                max-height: 60vh;
-            }
-
-            .character-button {
-                max-width: 100px;
-                padding: 0.5rem;
-            }
-
-            .character-button img {
-                height: 60%;
-            }
-
-            .character-button span {
-                font-size: clamp(10px, 1.2vh, 12px);
-            }
-
-            .title-image {
-                height: 120px;
-            }
-
-            #titleScreen h1 {
-                font-size: clamp(20px, 5vw, 32px);
-                margin: 0.5rem 0;
-            }
-
-            .top-scores {
-                padding: 0.75rem 1rem;
-            }
-
-            .mode-button {
-                padding: 0.75rem 1rem;
-                font-size: clamp(12px, 3vw, 16px);
-            }
-
-            #gameOver {
-                width: 90vw;
-                padding: 1.5rem;
-            }
-
-            #scoreDisplay {
-                padding: 8px 16px;
-                font-size: clamp(14px, 2vh, 20px);
-            }
-        }
-
-        /* Prevent text selection on mobile */
         * {
             -webkit-touch-callout: none;
             -webkit-user-select: none;
-            -khtml-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
             user-select: none;
         }
 
-        /* Improve touch targets */
-        button {
-            min-height: 44px;
-            min-width: 44px;
+        button { min-height: 44px; min-width: 44px; }
+
+        @supports (-webkit-touch-callout: none) {
+            .game-screen { min-height: -webkit-fill-available; }
         }
 
-        /* Ensure proper scaling on iOS */
-        @supports (-webkit-touch-callout: none) {
-            .game-screen {
-                min-height: -webkit-fill-available;
-            }
+        /* Screen flash */
+        #screenFlash {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 1200;
+            transition: opacity 0.05s ease;
+        }
+
+        /* Monster countdown */
+        #monsterTimer {
+            position: fixed;
+            top: clamp(0.8rem, 2vh, 1.5rem);
+            right: clamp(0.8rem, 2vw, 1.5rem);
+            background: rgba(26,26,46,0.9);
+            color: var(--danger);
+            padding: 10px 18px;
+            border: 2px solid var(--danger);
+            border-radius: 2px;
+            font-family: var(--pixel-font);
+            font-size: clamp(9px, 1.5vh, 13px);
+            z-index: 1000;
+            pointer-events: none;
+            display: none;
+            box-shadow: 3px 3px 0 #800000;
         }
     </style>
 </head>
 <body>
+
+<!-- TITLE SCREEN -->
 <div id="titleScreen" class="game-screen">
     <img src="snowy_mountain.png" alt="Snowy Mountain" class="title-image">
     <h1>Skiing with Buddies</h1>
-    
+
     <div class="game-setup">
         <div class="top-scores">
             <h3>My Top Scores</h3>
@@ -631,786 +509,1089 @@
         </button>
     </div>
 </div>
-  <div id="scoreDisplay">Score: 0</div>
-  <!-- Add this after your scoreDisplay div -->
-  <div id="highScores" class="game-screen" style="display: none;">
-    <h2>High Scores</h2>
-    <div id="scoreList"></div>
-    <button onclick="closeHighScores()">Close</button>
-  </div>
-  <!-- Add this before the canvas element -->
-  <div id="gameOver" style="display: none;">
-    <h2>Game Over</h2>
+
+<!-- HUD -->
+<div id="scoreDisplay" style="display:none">Score: 0</div>
+<div id="powerupDisplay">🛡 SHIELD ACTIVE</div>
+<div id="monsterTimer">👹 YETI IN: 30s</div>
+
+<!-- OVERLAYS -->
+<div id="warningMessage"></div>
+<div id="powerupNotif"></div>
+<div id="screenFlash"></div>
+
+<!-- GAME OVER -->
+<div id="gameOver" style="display:none; opacity:0;">
+    <h2>💀 WIPEOUT!</h2>
     <img src="hand.png" alt="Game Over" class="game-over-image">
     <p id="finalScore"></p>
-    <button onclick="restartGame()">Play Again</button>
+    <button onclick="restartGame()">▶ Play Again</button>
 </div>
-  <canvas id="gameCanvas"></canvas>
-  <audio id="backgroundMusic" src="ss_theme_song.mp3" loop></audio>
-  <audio id="selectSound"><source src="ss_select.wav" type="audio/wav"> Your browser does not support the audio element.</audio>
-  <audio id="gameOverSound"><source src="ss_gameover.wav" type="audio/wav">Your browser does not support the audio element.</audio>
-  
-  <script>
-    // Initialize game elements
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const scoreDisplay = document.getElementById('scoreDisplay');
-    const backgroundMusic = document.getElementById('backgroundMusic');
-    const selectSound = document.getElementById('selectSound');
-    const gameOverSound = document.getElementById('gameOverSound');
 
-    // Make sure all game images are loaded
-    const gameImages = {
-        mountains: 'mountains.png',
-        skiLodge: 'ski_lodge.png',
-        tree: 'tree.png',
-        tree2: 'tree_2.png',
-        treeAspen: 'tree_aspen.png',
-        rock: 'rock.png',
-        skier: 'skier.png',
-        monster: 'monster.png',
-        bones: 'bones.png'
-    };
+<canvas id="gameCanvas"></canvas>
 
-    // Load all images
-    const loadedImages = {};
-    Object.entries(gameImages).forEach(([key, src]) => {
-        loadedImages[key] = new Image();
-        loadedImages[key].src = src;
-    });
+<audio id="backgroundMusic" src="ss_theme_song.mp3" loop></audio>
+<audio id="selectSound"><source src="ss_select.wav" type="audio/wav"></audio>
+<audio id="gameOverSound"><source src="ss_gameover.wav" type="audio/wav"></audio>
 
-    // Initialize player image
-    let playerImg = new Image();
+<script>
+// ═══════════════════════════════════════════════
+//  CORE SETUP
+// ═══════════════════════════════════════════════
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const scoreDisplay = document.getElementById('scoreDisplay');
+const powerupDisplay = document.getElementById('powerupDisplay');
+const monsterTimerEl = document.getElementById('monsterTimer');
+const backgroundMusic = document.getElementById('backgroundMusic');
+const selectSound = document.getElementById('selectSound');
+const gameOverSound = document.getElementById('gameOverSound');
 
-    const characterSelect = document.getElementById('characterSelect');
-    
-    const mountainsImg = new Image();
-    mountainsImg.src = 'mountains.png';
-    const skiLodge = new Image();
-    skiLodge.src = 'ski_lodge.png';
-    const treeImg = new Image();
-    treeImg.src = 'tree.png';
-    const tree2Img = new Image();
-    tree2Img.src = 'tree_2.png';
-    const treeAspenImg = new Image();
-    treeAspenImg.src = 'tree_aspen.png';
-    const rockImg = new Image();
-    rockImg.src = 'rock.png';
-    const skierImg = new Image();
-    skierImg.src = 'skier.png';
-    const monsterImg = new Image();
-    monsterImg.src = 'monster.png';
-    const bonesImg = new Image();
-    bonesImg.src = 'bones.png';
-    
-    // Add this to your initialization code
-    [treeImg, tree2Img, treeAspenImg].forEach(img => {
-        img.onload = () => console.log(`Loaded ${img.src}`);
-        img.onerror = () => console.error(`Failed to load ${img.src}`);
-    });
+// Image loading
+const IMG = {};
+const imageSources = {
+    mountains: 'mountains.png',
+    skiLodge: 'ski_lodge.png',
+    tree: 'tree.png',
+    tree2: 'tree_2.png',
+    treeAspen: 'tree_aspen.png',
+    rock: 'rock.png',
+    skier: 'skier.png',
+    monster: 'monster.png',
+    bones: 'bones.png'
+};
+Object.entries(imageSources).forEach(([key, src]) => {
+    IMG[key] = new Image();
+    IMG[key].src = src;
+});
+let playerImg = new Image();
 
-    let playerX = 100;
-    let playerY = canvas.height / 2;
-    let playerSize = 64; // Increased from 48
-    let scrollSpeed = 5;
-    let progress = 0;
-    let gameRunning = false;
-    let startTime;
-    let obstacles = [];
-    let computerSkiers = [];
-    let keys = {};
-    let score = 0; // Add this line
+// ═══════════════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════════════
+const GAME_STATES = { TITLE: 'title', PLAYING: 'playing', GAME_OVER: 'gameOver' };
+const GAME_MODES  = { MONSTER: 'monster', ENDLESS: 'endless' };
 
-    let monsterX = canvas.width;
-    let monsterY = canvas.height / 2 - 60;
-    let monsterSpeed = 10;
-
-    const obstacleBoundingBoxes = {
-        rock: { x: 15, y: 15, width: 15, height: 18 },
-        tree: { 
-            base: { width: 40, height: 15 },  // Bottom part of tree
-            slope: 0.4  // How much the sides slope inward (adjust this value to match your tree image)
-        },
-        tree2: { 
-            base: { width: 40, height: 15 },  // Bottom part of tree
-            slope: 0.45  // Slightly different slope for tree2
-        },
-        treeAspen: { x: 15, y: 10, width: 15, height: 32 }
-    };
-
-    const skierBoundingBox = { 
-        x: 0, 
-        y: 0, 
-        width: 64 * 0.85,  // Adjusted for new size
-        height: 64 * 0.85  // Adjusted for new size
-    };
-
-    // Update the constants section
-    const GAME_STATES = {
-        TITLE: 'title',
-        CHARACTER_SELECT: 'characterSelect',
-        PLAYING: 'playing',
-        GAME_OVER: 'gameOver'
-    };
-
-    const GAME_MODES = {
-        MONSTER: 'monster',
-        ENDLESS: 'endless'
-    };
-
-    // Add these constants for better game balance
-    const GAME_CONFIG = {
+const GAME_CONFIG = {
     ENDLESS: {
         INITIAL_SPEED: 5,
-        SPEED_INCREMENT: 0.3,
-        SPEED_INTERVAL: 200,
+        SPEED_INCREMENT: 0.25,
+        SPEED_INTERVAL: 250,
         MAX_SPEED: 14,
-        OBSTACLE_SPAWN_RATE: 0.7,
-        SKIER_SPAWN_RATE: 0.4,
-        OBSTACLE_SIZE: {
-            TREE: 100,
-            TREE2: 100,
-            TREEASPEN: 120,
-            ROCK: 80
-        }
+        OBSTACLE_INTERVAL_MIN: 700,
+        OBSTACLE_INTERVAL_MAX: 1400,
+        SKIER_SPAWN_CHANCE: 0.25,
+        SKIER_INTERVAL: 1800
     },
     MONSTER: {
         INITIAL_SPEED: 4,
-        MONSTER_SPEED: 8,
+        MONSTER_SPEED: 7,
         WARNING_TIME: 25000,
         CHASE_TIME: 30000,
-        OBSTACLE_SPAWN_RATE: 0.5,
-        SKIER_SPAWN_RATE: 0.15,
-        MONSTER_SIZE: 160,
-        OBSTACLE_SIZE: {
-            TREE: 100,
-            TREE2: 100,
-            TREEASPEN: 120,
-            ROCK: 80
-        }
+        MONSTER_SIZE: 140,
+        OBSTACLE_INTERVAL_MIN: 900,
+        OBSTACLE_INTERVAL_MAX: 1800,
+        SKIER_SPAWN_CHANCE: 0.2,
+        SKIER_INTERVAL: 2200
     }
 };
 
-    // Initialize game state variables
-    let currentGameState = GAME_STATES.TITLE;
-    let currentGameMode = null;
-    let selectedCharacter = null;
-    let difficultyLevel = 1;
-    let gameSpeed = 5;
-    let lastSpeedIncrease = 0;
+// ═══════════════════════════════════════════════
+//  GAME STATE
+// ═══════════════════════════════════════════════
+let currentGameState = GAME_STATES.TITLE;
+let currentGameMode  = null;
+let selectedCharacter = null;
+let gameRunning = false;
 
-    function selectGameMode(mode) {
-        currentGameMode = mode;
-        playSelectSound();
-        
-        // Update UI
-        document.querySelectorAll('.mode-button').forEach(btn => {
-            btn.classList.remove('selected');
-        });
-        document.querySelector(`[data-mode="${mode}"]`).classList.add('selected');
-        
-        checkStartButton();
-    }
+let playerX, playerY;
+const PLAYER_SIZE = 56;
+let gameSpeed, progress, score;
+let startTime, difficultyLevel, lastSpeedIncrease;
+let obstacles = [], computerSkiers = [], particles = [], powerups = [];
+let keys = {};
 
-    function selectCharacter(character, event) {
-        selectedCharacter = character;
-        playSelectSound();
-        
-        // Update UI
-        document.querySelectorAll('.character-button').forEach(btn => {
-            btn.classList.remove('selected');
-        });
-        event.currentTarget.classList.add('selected');
-        
-        checkStartButton();
-    }
+// Power-up state
+let shieldActive    = false;
+let shieldTimer     = 0;
+let boostActive     = false;
+let boostTimer      = 0;
+let invincible      = false;      // brief invincibility after taking a hit w/ shield
+let invincibleTimer = 0;
 
-    function checkStartButton() {
-        const startButton = document.getElementById('startButton');
-        startButton.disabled = !(currentGameMode && selectedCharacter);
-    }
+// Monster
+let monsterX, monsterY, monsterVisible = false;
 
-    function startGameSetup() {
+// Intervals
+let obstacleInterval, skierInterval, powerupInterval;
+
+// ═══════════════════════════════════════════════
+//  UI HELPERS
+// ═══════════════════════════════════════════════
+function selectGameMode(mode) {
+    currentGameMode = mode;
+    playSelectSound();
+    document.querySelectorAll('.mode-button').forEach(b => b.classList.remove('selected'));
+    document.querySelector(`[data-mode="${mode}"]`).classList.add('selected');
+    checkStartButton();
+}
+
+function selectCharacter(character, event) {
+    selectedCharacter = character;
+    playSelectSound();
+    document.querySelectorAll('.character-button').forEach(b => b.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+    checkStartButton();
+}
+
+function checkStartButton() {
+    document.getElementById('startButton').disabled = !(currentGameMode && selectedCharacter);
+}
+
+function playSelectSound() {
+    try { selectSound.currentTime = 0; selectSound.play().catch(()=>{}); } catch(e) {}
+}
+
+function showWarning(msg) {
+    const w = document.getElementById('warningMessage');
+    w.textContent = msg;
+    w.style.opacity = 1;
+    setTimeout(() => w.style.opacity = 0, 450);
+}
+
+function showPowerupNotif(msg) {
+    const n = document.getElementById('powerupNotif');
+    n.textContent = msg;
+    n.style.opacity = 1;
+    clearTimeout(n._t);
+    n._t = setTimeout(() => n.style.opacity = 0, 1800);
+}
+
+function flashScreen(color = 'rgba(255,80,80,0.4)') {
+    const f = document.getElementById('screenFlash');
+    f.style.background = color;
+    f.style.opacity = 1;
+    setTimeout(() => f.style.opacity = 0, 120);
+}
+
+// ═══════════════════════════════════════════════
+//  GAME SETUP & START
+// ═══════════════════════════════════════════════
+function startGameSetup() {
     if (!currentGameMode || !selectedCharacter) return;
-    
-    // Play sound
-    try {
-        selectSound.currentTime = 0;
-        selectSound.play().catch(e => console.log("Sound play failed:", e));
-    } catch (e) {
-        console.log("Sound play failed:", e);
-    }
-    
-    // Load the character image before starting
+    playSelectSound();
     playerImg = new Image();
-    playerImg.onload = () => {
-        console.log("Player image loaded successfully");
-        startGame(selectedCharacter);
-    };
-    playerImg.onerror = () => {
-        console.error("Failed to load player image:", selectedCharacter);
-    };
-    console.log("Loading player image:", selectedCharacter);
+    playerImg.onload = () => startGame(selectedCharacter);
+    playerImg.onerror = () => startGame(selectedCharacter);
     playerImg.src = selectedCharacter;
 }
 
-    function startGame(character) {
-    // Hide title screen and show game canvas
+function startGame(character) {
     document.getElementById('titleScreen').style.display = 'none';
     canvas.style.display = 'block';
-    
-    // Initialize game state
+
     currentGameState = GAME_STATES.PLAYING;
     gameRunning = true;
     progress = 0;
     score = 0;
-    
-    // Show and reset score display
+    shieldActive = false; shieldTimer = 0;
+    boostActive  = false; boostTimer  = 0;
+    invincible   = false; invincibleTimer = 0;
+    monsterVisible = false;
+    particles = [];
+    powerups  = [];
+
     scoreDisplay.style.display = 'block';
-    scoreDisplay.textContent = 'Score: 0';
-    
-    // Initialize game parameters
-    startTime = Date.now();
-    gameSpeed = 5;
-    difficultyLevel = 1;
+    scoreDisplay.textContent   = 'Score: 0';
+    powerupDisplay.style.display = 'none';
+
+    startTime        = Date.now();
+    gameSpeed        = currentGameMode === GAME_MODES.MONSTER
+                       ? GAME_CONFIG.MONSTER.INITIAL_SPEED
+                       : GAME_CONFIG.ENDLESS.INITIAL_SPEED;
+    difficultyLevel  = 1;
     lastSpeedIncrease = 0;
-    
-    // Reset positions - update this part
-    playerX = 100;
-    playerY = canvas.height * 0.3 + 50; // Start just below mountains
-    monsterX = canvas.width;
-    monsterY = canvas.height * 0.3 + 50; // Adjust monster start position too
-    
-    // Clear arrays
-    obstacles = [];
-    computerSkiers = [];
-    
-    // Ensure canvas is properly sized
+
     resizeCanvas();
-    
-    // Start game systems
-    generateObstacles();
-    generateComputerSkiers();
-    
-    // Play background music
+    playerX = 100;
+    playerY = canvas.height * 0.3 + 80;
+    monsterX = canvas.width * 1.5;
+    monsterY = canvas.height * 0.3 + 80;
+
+    obstacles = []; computerSkiers = [];
+
+    if (currentGameMode === GAME_MODES.MONSTER) {
+        monsterTimerEl.style.display = 'block';
+    } else {
+        monsterTimerEl.style.display = 'none';
+    }
+
+    startObstacleSpawner();
+    startSkierSpawner();
+    startPowerupSpawner();
+
     try {
         backgroundMusic.currentTime = 0;
-        backgroundMusic.volume = 0.5;
-        backgroundMusic.play().catch(e => console.log("Music play failed:", e));
-    } catch (e) {
-        console.log("Music play failed:", e);
-    }
-    
-    // Start game loop
+        backgroundMusic.volume = 0.45;
+        backgroundMusic.play().catch(()=>{});
+    } catch(e) {}
+
     requestAnimationFrame(gameLoop);
 }
 
-    function playSelectSound() {
-        try {
-            selectSound.currentTime = 0;
-            selectSound.play().catch(e => console.log("Sound play failed:", e));
-        } catch (e) {
-            console.log("Sound play failed:", e);
-        }
-    }
+function restartGame() {
+    clearSpawners();
+    currentGameState  = GAME_STATES.TITLE;
+    document.getElementById('gameOver').style.display = 'none';
+    document.getElementById('titleScreen').style.display = 'flex';
+    canvas.style.display = 'none';
+    backgroundMusic.pause(); backgroundMusic.currentTime = 0;
+    scoreDisplay.style.display   = 'none';
+    powerupDisplay.style.display = 'none';
+    monsterTimerEl.style.display = 'none';
 
-    function restartGame() {
-        currentGameState = GAME_STATES.TITLE;
-        document.getElementById('gameOver').style.display = 'none';
-        document.getElementById('titleScreen').style.display = 'flex';
-        canvas.style.display = 'none';
-        backgroundMusic.pause();
-        backgroundMusic.currentTime = 0;
-        scoreDisplay.style.display = 'none';
-        
-        // Reset selections
-        selectedCharacter = null;
-        currentGameMode = null;
-        document.querySelectorAll('.mode-button, .character-button').forEach(btn => {
-            btn.classList.remove('selected');
-        });
-        document.getElementById('startButton').disabled = true;
-    }
-
-    document.addEventListener('keydown', (e) => { keys[e.key] = true; });
-    document.addEventListener('keyup', (e) => { keys[e.key] = false; });
-
-    // Add touch event listeners
-    canvas.addEventListener('touchstart', handleTouchStart, false);
-    canvas.addEventListener('touchmove', handleTouchMove, false);
-
-    function handleTouchStart(e) {
-    if (!gameRunning) return;
-    const touch = e.touches[0];
-    const mountainHeight = canvas.height * 0.3;
-    playerY = Math.max(
-        mountainHeight,
-        Math.min(canvas.height - playerSize - 50, touch.clientY - playerSize / 2)
-    );
+    selectedCharacter = null; currentGameMode = null;
+    document.querySelectorAll('.mode-button, .character-button').forEach(b => b.classList.remove('selected'));
+    document.getElementById('startButton').disabled = true;
 }
+
+function clearSpawners() {
+    clearInterval(obstacleInterval);
+    clearInterval(skierInterval);
+    clearInterval(powerupInterval);
+}
+
+// ═══════════════════════════════════════════════
+//  SPAWNERS
+// ═══════════════════════════════════════════════
+function getPlayArea() {
+    const top    = canvas.height * 0.3;
+    const bottom = canvas.height - 50;
+    return { top, bottom, height: bottom - top };
+}
+
+function startObstacleSpawner() {
+    clearInterval(obstacleInterval);
+    const cfg = currentGameMode === GAME_MODES.MONSTER ? GAME_CONFIG.MONSTER : GAME_CONFIG.ENDLESS;
+
+    function scheduleNext() {
+        if (!gameRunning) return;
+        const delay = cfg.OBSTACLE_INTERVAL_MIN + Math.random() * (cfg.OBSTACLE_INTERVAL_MAX - cfg.OBSTACLE_INTERVAL_MIN);
+        obstacleInterval = setTimeout(() => {
+            if (!gameRunning) return;
+            spawnObstacleCluster();
+            scheduleNext();
+        }, delay);
+    }
+    scheduleNext();
+}
+
+function spawnObstacleCluster() {
+    const { top, height } = getPlayArea();
+    // Occasionally spawn a cluster of 2-3 obstacles
+    const clusterSize = Math.random() < 0.3 ? (Math.random() < 0.5 ? 2 : 3) : 1;
+    const baseY = top + Math.random() * (height * 0.7);
+
+    for (let i = 0; i < clusterSize; i++) {
+        const typeRoll = Math.random();
+        let type, size, color;
+
+        if (typeRoll < 0.2) {
+            type = 'tree'; size = 100;
+        } else if (typeRoll < 0.4) {
+            type = 'tree2'; size = 100;
+        } else if (typeRoll < 0.58) {
+            type = 'treeAspen'; size = 110;
+        } else if (typeRoll < 0.7) {
+            type = 'rock'; size = 72;
+        } else if (typeRoll < 0.82) {
+            type = 'snowdrift'; size = 90;
+        } else if (typeRoll < 0.92) {
+            type = 'gate'; size = 80;
+            color = Math.random() < 0.5 ? '#ff4444' : '#4488ff';
+        } else {
+            type = 'icepatch'; size = 110;
+        }
+
+        const offsetY = i * (size * 0.8 + 10) * (Math.random() < 0.5 ? 1 : -1);
+        const clampedY = Math.min(
+            Math.max(top, baseY + offsetY),
+            getPlayArea().bottom - size
+        );
+
+        obstacles.push({
+            x: canvas.width + i * 60,
+            y: clampedY,
+            width: size,
+            height: size,
+            type,
+            color: color || null
+        });
+    }
+}
+
+function startSkierSpawner() {
+    clearInterval(skierInterval);
+    const cfg = currentGameMode === GAME_MODES.MONSTER ? GAME_CONFIG.MONSTER : GAME_CONFIG.ENDLESS;
+    skierInterval = setInterval(() => {
+        if (!gameRunning) return;
+        if (Math.random() < cfg.SKIER_SPAWN_CHANCE) spawnComputerSkier();
+    }, cfg.SKIER_INTERVAL);
+}
+
+function spawnComputerSkier() {
+    const { top, height } = getPlayArea();
+    computerSkiers.push({
+        x: canvas.width + 64,
+        y: top + Math.random() * (height - 64),
+        width: 56, height: 56,
+        speed: gameSpeed * 0.55 + Math.random() * 1.5,
+        verticalDir: Math.random() < 0.5 ? -1 : 1,
+        verticalSpeed: 0.8 + Math.random() * 1.0,
+        lastDirChange: Date.now()
+    });
+}
+
+function startPowerupSpawner() {
+    clearInterval(powerupInterval);
+    powerupInterval = setInterval(() => {
+        if (!gameRunning) return;
+        if (Math.random() < 0.55) spawnPowerup();
+    }, 4500);
+}
+
+function spawnPowerup() {
+    const { top, height } = getPlayArea();
+    const types = ['shield', 'boost'];
+    const type  = types[Math.floor(Math.random() * types.length)];
+    powerups.push({
+        x: canvas.width,
+        y: top + 30 + Math.random() * (height - 80),
+        size: 32,
+        type,
+        bobOffset: Math.random() * Math.PI * 2,
+        collected: false
+    });
+}
+
+// ═══════════════════════════════════════════════
+//  INPUT
+// ═══════════════════════════════════════════════
+document.addEventListener('keydown', e => { keys[e.key] = true; });
+document.addEventListener('keyup',   e => { keys[e.key] = false; });
+
+canvas.addEventListener('touchstart', handleTouchMove, { passive: false });
+canvas.addEventListener('touchmove',  handleTouchMove, { passive: false });
 
 function handleTouchMove(e) {
     if (!gameRunning) return;
-    const touch = e.touches[0];
-    const mountainHeight = canvas.height * 0.3;
-    playerY = Math.max(
-        mountainHeight,
-        Math.min(canvas.height - playerSize - 50, touch.clientY - playerSize / 2)
-    );
     e.preventDefault();
+    const touch = e.touches[0];
+    const { top } = getPlayArea();
+    playerY = Math.max(top, Math.min(canvas.height - PLAYER_SIZE - 50, touch.clientY - PLAYER_SIZE / 2));
 }
 
-    function generateObstacles() {
-    // Clear any existing interval
-    if (window.obstacleInterval) {
-        clearInterval(window.obstacleInterval);
-    }
-
-    const playAreaTop = canvas.height * 0.3;
-    const playAreaBottom = canvas.height - 50;
-    const playableHeight = playAreaBottom - playAreaTop;
-
-    window.obstacleInterval = setInterval(() => {
-        if (!gameRunning) return;
-        
-        const type = Math.random();
-        let obstacleType;
-        let size;
-        
-        if (type < 0.25) {
-            obstacleType = 'tree';
-            size = 100;
-        } else if (type < 0.5) {
-            obstacleType = 'tree2';
-            size = 100;
-        } else if (type < 0.75) {
-            obstacleType = 'treeAspen';
-            size = 120;
-        } else {
-            obstacleType = 'rock';
-            size = 80;
-        }
-        
-        obstacles.push({
-            x: canvas.width,
-            y: playAreaTop + Math.random() * (playableHeight - size),
-            width: size,
-            height: size,
-            type: obstacleType
-        });
-    }, 1000);
-}
-
-    function generateComputerSkiers() {
-    const playAreaTop = canvas.height * 0.3;
-    const playAreaBottom = canvas.height - 50;
-    const playableHeight = playAreaBottom - playAreaTop;
-
-    // Clear any existing interval
-    if (window.computerSkierInterval) {
-        clearInterval(window.computerSkierInterval);
-    }
-
-    window.computerSkierInterval = setInterval(() => {
-        if (!gameRunning) return;
-        if (Math.random() < 0.3) { // Increased spawn rate for testing
-            computerSkiers.push({
-                x: canvas.width + 64,
-                y: playAreaTop + Math.random() * (playableHeight - 64),
-                width: 64,
-                height: 64,
-                speed: gameSpeed * 0.6, // Increased speed ratio
-                verticalDirection: Math.random() < 0.5 ? -1 : 1,
-                verticalSpeed: 0.5 + Math.random() * 0.5,
-                lastDirectionChange: Date.now()
-            });
-            console.log("Generated new computer skier", computerSkiers.length); // Debug log
-        }
-    }, 1500); // Spawn check every 1.5 seconds
-}
-
-    function updateObstacles() {
-    // Update obstacles with smoother movement
-    for (const obstacle of obstacles) {
-        obstacle.x -= gameSpeed;
-    }
-    
-    // Update computer skiers with smoother movement
-    for (const skier of computerSkiers) {
-        // Move relative to player speed
-        skier.x -= (gameSpeed - skier.speed);
-        
-        // Vertical movement
-        if (Date.now() - skier.lastDirectionChange > 2000) {
-            skier.verticalDirection *= -1;
-            skier.lastDirectionChange = Date.now();
-        }
-
-        const newY = skier.y + (skier.verticalSpeed * skier.verticalDirection);
-        const playAreaTop = canvas.height * 0.3;
-        const playAreaBottom = canvas.height - 50;
-        
-        if (newY > playAreaTop && newY < playAreaBottom - skier.height) {
-            skier.y = newY;
-        } else {
-            skier.verticalDirection *= -1;
-        }
-    }
-    
-    // Clean up off-screen objects
-    obstacles = obstacles.filter(obstacle => obstacle.x + obstacle.width > 0);
-    const originalLength = computerSkiers.length;
-    computerSkiers = computerSkiers.filter(skier => skier.x > -64);
-    if (originalLength !== computerSkiers.length) {
-        console.log("Removed off-screen skiers", originalLength - computerSkiers.length); // Debug log
-    }
-}
-
-    function update() {
+// ═══════════════════════════════════════════════
+//  UPDATE
+// ═══════════════════════════════════════════════
+function update() {
     if (!gameRunning) return;
 
+    const now = Date.now();
     progress += gameSpeed;
     score = Math.floor(progress / 10);
-    
-    // Update score display with current game mode
-    const modePrefix = currentGameMode === GAME_MODES.MONSTER ? 'Monster: ' : 'Score: ';
+
+    const modePrefix = currentGameMode === GAME_MODES.MONSTER ? '👹 ' : '⭐ ';
     scoreDisplay.textContent = `${modePrefix}${score}`;
-    
-    // Handle different game modes
+
+    // Player movement
+    const { top } = getPlayArea();
+    const speed = boostActive ? 9 : 5;
+    if (keys.ArrowUp   || keys.w) playerY -= speed;
+    if (keys.ArrowDown || keys.s) playerY += speed;
+    playerY = Math.max(top, Math.min(canvas.height - PLAYER_SIZE - 50, playerY));
+
+    // Power-up timers
+    if (shieldActive) {
+        shieldTimer -= 16;
+        if (shieldTimer <= 0) { shieldActive = false; updatePowerupHUD(); }
+    }
+    if (boostActive) {
+        boostTimer -= 16;
+        if (boostTimer <= 0) { boostActive = false; updatePowerupHUD(); }
+    }
+    if (invincible) {
+        invincibleTimer -= 16;
+        if (invincibleTimer <= 0) invincible = false;
+    }
+
+    // Game mode logic
     if (currentGameMode === GAME_MODES.MONSTER) {
-        handleMonsterMode();
+        handleMonsterMode(now);
     } else {
         handleEndlessMode();
     }
 
-    // Update player position with mountain boundary
-    const mountainHeight = canvas.height * 0.3; // Match mountain height
-    if (keys.ArrowUp) playerY -= 5;
-    if (keys.ArrowDown) playerY += 5;
-    
-    // Constrain player to area below mountains and above bottom
-    playerY = Math.max(
-        mountainHeight, // Top boundary is mountain height
-        Math.min(canvas.height - playerSize - 50, playerY) // Bottom boundary
-    );
-
     updateObstacles();
-    checkCollisions();
+    updateParticles();
+    updatePowerups();
+
+    if (!invincible) checkCollisions();
 }
 
-    // Add these new functions
-    function handleMonsterMode() {
-    const config = GAME_CONFIG.MONSTER;
-    const currentTime = Date.now() - startTime;
-    
-    if (currentTime >= config.WARNING_TIME && currentTime < config.CHASE_TIME) {
-        if (Math.floor(currentTime / 500) % 2) {
-            showWarning("The Yeti is Coming!");
-        }
-    }
-    
-    if (currentTime >= config.CHASE_TIME) {
-        const distanceToPlayer = Math.abs(monsterY - playerY);
-        const chaseSpeed = Math.min(config.MONSTER_SPEED, distanceToPlayer * 0.1);
-        
-        if (monsterX > playerX + playerSize) {
-            monsterX -= chaseSpeed;
-        }
-        if (monsterY < playerY) {
-            monsterY += chaseSpeed / 2;
-        } else if (monsterY > playerY) {
-            monsterY -= chaseSpeed / 2;
-        }
-        
-        if (monsterX < playerX + playerSize && Math.abs(monsterY - playerY) < playerSize) {
-            playerImg.src = 'bones.png';
-            gameOver(false);
-        }
+function handleEndlessMode() {
+    const cfg = GAME_CONFIG.ENDLESS;
+    if (score > lastSpeedIncrease + cfg.SPEED_INTERVAL && gameSpeed < cfg.MAX_SPEED) {
+        gameSpeed = Math.min(cfg.MAX_SPEED, cfg.INITIAL_SPEED + (Math.floor(score / cfg.SPEED_INTERVAL) * cfg.SPEED_INCREMENT));
+        difficultyLevel++;
+        lastSpeedIncrease = score;
     }
 }
 
-    function handleEndlessMode() {
-        const config = GAME_CONFIG.ENDLESS;
-        
-        if (score > lastSpeedIncrease + config.SPEED_INTERVAL && gameSpeed < config.MAX_SPEED) {
-            gameSpeed = Math.min(
-                config.MAX_SPEED, 
-                config.INITIAL_SPEED + (Math.floor(score / config.SPEED_INTERVAL) * config.SPEED_INCREMENT)
-            );
-            
-            // Increase spawn rates with difficulty
-            config.SKIER_SPAWN_RATE = Math.min(0.6, 0.4 + (difficultyLevel * 0.05));
-            config.OBSTACLE_SPAWN_RATE = Math.min(0.8, 0.7 + (difficultyLevel * 0.02));
-            
-            difficultyLevel++;
-            lastSpeedIncrease = score;
-        }
-    }
+function handleMonsterMode(now) {
+    const cfg = GAME_CONFIG.MONSTER;
+    const elapsed = now - startTime;
+    const timeLeft = Math.max(0, Math.ceil((cfg.CHASE_TIME - elapsed) / 1000));
 
-    function draw() {
-    if (!gameRunning) return;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw sky background
-    ctx.fillStyle = '#87CEEB';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw mountains and ground
-    let bgX = -(progress * 0.5) % canvas.width;
-    const mountainHeight = canvas.height * 0.3;
-    ctx.drawImage(mountainsImg, bgX, 0, canvas.width, mountainHeight);
-    ctx.drawImage(mountainsImg, bgX + canvas.width, 0, canvas.width, mountainHeight);
-    
-    // Draw snow ground
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, mountainHeight, canvas.width, canvas.height - mountainHeight);
-    
-    // Draw obstacles
-    obstacles.forEach(obstacle => {
-        let img;
-        switch(obstacle.type) {
-            case 'tree': img = treeImg; break;
-            case 'tree2': img = tree2Img; break;
-            case 'treeAspen': img = treeAspenImg; break;
-            case 'rock': img = rockImg; break;
-            default: img = treeImg;
-        }
-        
-        if (img && img.complete) {
-            ctx.drawImage(img, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-        }
-    });
-    
-    // Draw computer skiers
-    computerSkiers.forEach(skier => {
-        if (skierImg && skierImg.complete) {
-            ctx.drawImage(skierImg, skier.x, skier.y, skier.width, skier.height);
-        }
-    });
-    
-    // Draw player character
-    if (playerImg && playerImg.complete) {
-        ctx.drawImage(playerImg, playerX, playerY, playerSize, playerSize);
-    }
-    
-    // Draw monster in monster mode
-    if (currentGameMode === GAME_MODES.MONSTER && Date.now() - startTime >= GAME_CONFIG.MONSTER.CHASE_TIME) {
-        if (monsterImg && monsterImg.complete) {
-            ctx.drawImage(monsterImg, monsterX, monsterY, GAME_CONFIG.MONSTER.MONSTER_SIZE, GAME_CONFIG.MONSTER.MONSTER_SIZE);
-        }
-    }
-}
+    if (elapsed < cfg.WARNING_TIME) {
+        monsterTimerEl.textContent = `👹 YETI IN: ${timeLeft}s`;
+    } else if (elapsed < cfg.CHASE_TIME) {
+        monsterTimerEl.textContent = `👹 INCOMING! ${timeLeft}s`;
+        monsterTimerEl.style.borderColor = '#ff4444';
+        if (Math.floor(elapsed / 500) % 2 === 0) showWarning('👹 THE YETI IS COMING!');
+    } else {
+        monsterTimerEl.textContent = '👹 YETI ON THE LOOSE!';
+        monsterVisible = true;
 
-    function gameLoop() {
-    if (!gameRunning) return;
-    
-    update();
-    draw();
-    requestAnimationFrame(gameLoop);
-}
-
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      // Reset player position based on new canvas size
-      playerY = canvas.height / 2;
-      monsterY = canvas.height / 2 - 60;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    function gameOver(success) {
-    // Immediately stop the game loop
-    gameRunning = false;
-    
-    // Clear any existing intervals
-    if (window.obstacleInterval) {
-        clearInterval(window.obstacleInterval);
-    }
-    if (window.computerSkierInterval) {
-        clearInterval(window.computerSkierInterval);
-    }
-    
-    // Reset arrays
-    obstacles = [];
-    computerSkiers = [];
-    
-    // Update high scores
-    updateHighScores(score);
-    
-    // Update game over screen
-    const gameOverScreen = document.getElementById('gameOver');
-    const finalScore = document.getElementById('finalScore');
-    
-    // Set final score text based on game mode
-    const modeText = currentGameMode === GAME_MODES.MONSTER ? 'Monster Mode' : 'Endless Mode';
-    let scoreText = `${modeText}<br>Final Score: ${score}`;
-    
-    // Add high score message for endless mode
-    if (currentGameMode === GAME_MODES.ENDLESS) {
-        const scores = JSON.parse(localStorage.getItem('highScores') || '[]');
-        const isHighScore = scores.some(s => s.score < score);
-        if (isHighScore) {
-            scoreText += '<br><br>🎉 New High Score! 🎉';
+        // Smooth monster chase
+        const targetX = playerX - 20;
+        const targetY = playerY;
+        const dx = targetX - monsterX;
+        const dy = targetY - monsterY;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist > 5) {
+            const spd = cfg.MONSTER_SPEED;
+            monsterX += (dx / dist) * spd;
+            monsterY += (dy / dist) * (spd * 0.7);
         }
-    }
-    
-    finalScore.innerHTML = scoreText;
-    
-    // Stop all audio and play game over sound
-    backgroundMusic.pause();
-    backgroundMusic.currentTime = 0;
-    gameOverSound.play();
-    
-    // Show game over screen with fade in
-    gameOverScreen.style.opacity = '0';
-    gameOverScreen.style.display = 'block';
-    setTimeout(() => {
-        gameOverScreen.style.opacity = '1';
-    }, 10);
-}
-    
-    function checkCollisions() {
-    // Check obstacle collisions
-    for (const obstacle of obstacles) {
-        if (obstacle.type === 'tree' || obstacle.type === 'tree2' || obstacle.type === 'treeAspen') {
-            if (checkTreeCollision(obstacle)) {
-                gameOver(false);
-                return;
+
+        // Collision with monster
+        const mSize = cfg.MONSTER_SIZE;
+        if (monsterX < playerX + PLAYER_SIZE * 0.7 &&
+            monsterX + mSize * 0.5 > playerX + PLAYER_SIZE * 0.2 &&
+            monsterY < playerY + PLAYER_SIZE * 0.8 &&
+            monsterY + mSize * 0.5 > playerY) {
+
+            if (shieldActive) {
+                shieldActive = false; shieldTimer = 0;
+                invincible = true; invincibleTimer = 1500;
+                flashScreen('rgba(80,180,255,0.5)');
+                showPowerupNotif('🛡 Shield absorbed the Yeti!');
+                updatePowerupHUD();
+                // Push monster back
+                monsterX = canvas.width * 0.6;
+            } else {
+                triggerGameOver();
             }
+        }
+
+        // Gradually increase monster speed over time
+        cfg.MONSTER_SPEED = Math.min(11, 7 + (elapsed - cfg.CHASE_TIME) / 15000);
+    }
+}
+
+function updateObstacles() {
+    for (const ob of obstacles) ob.x -= gameSpeed;
+    for (const sk of computerSkiers) {
+        // Fix: skiers now move visibly relative to player
+        sk.x -= (gameSpeed - sk.speed);
+
+        const now = Date.now();
+        if (now - sk.lastDirChange > 1800 + Math.random() * 800) {
+            sk.verticalDir *= -1;
+            sk.lastDirChange = now;
+        }
+        const { top, bottom } = getPlayArea();
+        const newY = sk.y + sk.verticalSpeed * sk.verticalDir;
+        if (newY > top && newY < bottom - sk.height) sk.y = newY;
+        else sk.verticalDir *= -1;
+    }
+    obstacles     = obstacles.filter(o => o.x + o.width > -20);
+    computerSkiers = computerSkiers.filter(s => s.x > -80);
+}
+
+function updatePowerups() {
+    const now = Date.now();
+    for (const pu of powerups) {
+        pu.x -= gameSpeed;
+        // Bob up and down
+        pu.y += Math.sin(now * 0.004 + pu.bobOffset) * 0.4;
+    }
+    powerups = powerups.filter(p => p.x > -60 && !p.collected);
+}
+
+function updateParticles() {
+    for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 1;
+        p.vy += 0.05; // gravity
+    }
+    particles = particles.filter(p => p.life > 0);
+}
+
+// ═══════════════════════════════════════════════
+//  COLLISION
+// ═══════════════════════════════════════════════
+function checkCollisions() {
+    // Power-up collection
+    for (const pu of powerups) {
+        if (pu.collected) continue;
+        const px = playerX + PLAYER_SIZE * 0.2;
+        const py = playerY + PLAYER_SIZE * 0.2;
+        const pw = PLAYER_SIZE * 0.6;
+        const ph = PLAYER_SIZE * 0.6;
+        if (px < pu.x + pu.size && px + pw > pu.x &&
+            py < pu.y + pu.size && py + ph > pu.y) {
+            collectPowerup(pu);
+        }
+    }
+
+    // Obstacle collisions
+    for (const ob of obstacles) {
+        if (ob.type === 'icepatch') {
+            // Ice patch: just slows/slides
+            if (playerOverlapsObstacle(ob, 0.7)) {
+                // Slide effect — nudge player downward slightly
+                const { bottom } = getPlayArea();
+                playerY = Math.min(bottom - PLAYER_SIZE - 10, playerY + 1.5);
+            }
+            continue;
+        }
+        if (ob.type === 'gate') {
+            // Passing through gates gives bonus (no collision damage)
+            continue;
+        }
+
+        let hit = false;
+        if (ob.type === 'tree' || ob.type === 'tree2' || ob.type === 'treeAspen') {
+            hit = checkTreeCollision(ob);
         } else {
-            // Use regular box collision for rocks
-            if (playerX < obstacle.x + obstacle.width * 0.6 &&
-                playerX + playerSize > obstacle.x + obstacle.width * 0.2 &&
-                playerY < obstacle.y + obstacle.height * 0.8 &&
-                playerY + playerSize > obstacle.y + obstacle.height * 0.2) {
-                gameOver(false);
-                return;
+            hit = playerOverlapsObstacle(ob, 0.55);
+        }
+
+        if (hit) {
+            if (shieldActive) {
+                shieldActive = false; shieldTimer = 0;
+                invincible = true; invincibleTimer = 1200;
+                flashScreen('rgba(80,180,255,0.5)');
+                showPowerupNotif('🛡 Shield blocked it!');
+                updatePowerupHUD();
+                spawnCrashParticles(playerX + PLAYER_SIZE/2, playerY + PLAYER_SIZE/2, '#4fc3f7');
+            } else {
+                triggerGameOver();
             }
+            return;
         }
     }
-    
-    // Check skier collisions
-    for (const skier of computerSkiers) {
-        if (playerX < skier.x + skier.width * 0.8 &&
-            playerX + playerSize > skier.x + skier.width * 0.2 &&
-            playerY < skier.y + skier.height * 0.8 &&
-            playerY + playerSize > skier.y + skier.height * 0.2) {
-            gameOver(false);
+
+    // Skier collisions
+    for (const sk of computerSkiers) {
+        if (playerOverlapsRect(sk.x + sk.width*0.15, sk.y + sk.height*0.15, sk.width*0.7, sk.height*0.7)) {
+            if (shieldActive) {
+                shieldActive = false; shieldTimer = 0;
+                invincible = true; invincibleTimer = 1200;
+                flashScreen('rgba(80,180,255,0.5)');
+                showPowerupNotif('🛡 Shield blocked it!');
+                updatePowerupHUD();
+            } else {
+                triggerGameOver();
+            }
             return;
         }
     }
 }
 
-// Add this new function for tree collision detection
-function checkTreeCollision(tree) {
-    // Check basic bounding box first
-    if (playerX + playerSize < tree.x || 
-        playerX > tree.x + tree.width ||
-        playerY + playerSize < tree.y ||
-        playerY > tree.y + tree.height) {
-        return false;
-    }
-
-    // If we're in the bounding box, do more precise collision
-    const centerX = playerX + playerSize / 2;
-    const centerY = playerY + playerSize / 2;
-    const treeBaseWidth = tree.width * 0.5; // Make collision area smaller than visual tree
-    const treeCenterX = tree.x + tree.width / 2;
-    
-    // Calculate triangle collision
-    const relativeY = centerY - tree.y;
-    const maxWidth = treeBaseWidth * (1 - (relativeY / tree.height));
-    const currentWidth = Math.max(maxWidth, treeBaseWidth * 0.2); // Minimum width at top
-    
-    // Check if player center is within the triangle
-    return Math.abs(centerX - treeCenterX) < currentWidth / 2;
+function playerOverlapsObstacle(ob, shrink = 0.6) {
+    const margin = (1 - shrink) / 2;
+    return playerOverlapsRect(
+        ob.x + ob.width  * margin,
+        ob.y + ob.height * margin,
+        ob.width  * shrink,
+        ob.height * shrink
+    );
 }
 
-    function updateHighScores(newScore) {
-    // Only update high scores for endless mode
-    if (currentGameMode !== GAME_MODES.ENDLESS) return;
-    
-    let scores = JSON.parse(localStorage.getItem('highScores') || '[]');
-    scores.push({
-        score: newScore,
-        date: new Date().toLocaleDateString(),
-        character: selectedCharacter
+function playerOverlapsRect(rx, ry, rw, rh) {
+    const px = playerX + PLAYER_SIZE * 0.15;
+    const py = playerY + PLAYER_SIZE * 0.15;
+    const pw = PLAYER_SIZE * 0.7;
+    const ph = PLAYER_SIZE * 0.7;
+    return px < rx + rw && px + pw > rx && py < ry + rh && py + ph > ry;
+}
+
+function checkTreeCollision(tree) {
+    // Broad phase
+    if (playerX + PLAYER_SIZE < tree.x || playerX > tree.x + tree.width ||
+        playerY + PLAYER_SIZE < tree.y || playerY > tree.y + tree.height) return false;
+
+    // Narrow: triangle-ish — collision narrows toward top
+    const cx = playerX + PLAYER_SIZE / 2;
+    const cy = playerY + PLAYER_SIZE * 0.6;
+    const relY   = (cy - tree.y) / tree.height;
+    const halfW  = (tree.width * 0.22) * (0.3 + relY * 0.7);
+    const treeCenter = tree.x + tree.width / 2;
+    return Math.abs(cx - treeCenter) < halfW;
+}
+
+function collectPowerup(pu) {
+    pu.collected = true;
+    spawnCrashParticles(pu.x + pu.size/2, pu.y + pu.size/2,
+        pu.type === 'shield' ? '#4fc3f7' : '#ffd700', 12);
+
+    if (pu.type === 'shield') {
+        shieldActive = true;
+        shieldTimer  = 8000;
+        showPowerupNotif('🛡 SHIELD ACTIVATED!');
+        flashScreen('rgba(80,180,255,0.25)');
+    } else if (pu.type === 'boost') {
+        boostActive = true;
+        boostTimer  = 4000;
+        invincible  = true;
+        invincibleTimer = 4000;
+        showPowerupNotif('⚡ SPEED BOOST!');
+        flashScreen('rgba(255,215,0,0.25)');
+    }
+    updatePowerupHUD();
+}
+
+function updatePowerupHUD() {
+    if (shieldActive) {
+        powerupDisplay.style.display = 'block';
+        powerupDisplay.textContent = `🛡 SHIELD: ${(shieldTimer/1000).toFixed(1)}s`;
+        powerupDisplay.style.borderColor = '#4fc3f7';
+    } else if (boostActive) {
+        powerupDisplay.style.display = 'block';
+        powerupDisplay.textContent = `⚡ BOOST: ${(boostTimer/1000).toFixed(1)}s`;
+        powerupDisplay.style.borderColor = '#ffd700';
+    } else {
+        powerupDisplay.style.display = 'none';
+    }
+}
+
+// ═══════════════════════════════════════════════
+//  PARTICLES
+// ═══════════════════════════════════════════════
+function spawnSnowParticles(x, y) {
+    for (let i = 0; i < 3; i++) {
+        particles.push({
+            x, y,
+            vx: (Math.random() - 0.5) * 2,
+            vy: -Math.random() * 2,
+            life: 20 + Math.random() * 15,
+            size: 2 + Math.random() * 3,
+            color: 'rgba(255,255,255,0.8)'
+        });
+    }
+}
+
+function spawnCrashParticles(x, y, color = '#fff', count = 18) {
+    for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+        const spd   = 2 + Math.random() * 4;
+        particles.push({
+            x, y,
+            vx: Math.cos(angle) * spd,
+            vy: Math.sin(angle) * spd - 2,
+            life: 25 + Math.random() * 20,
+            size: 3 + Math.random() * 4,
+            color
+        });
+    }
+}
+
+// ═══════════════════════════════════════════════
+//  DRAW
+// ═══════════════════════════════════════════════
+function draw() {
+    if (!gameRunning) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Sky
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.3);
+    skyGrad.addColorStop(0, '#87CEEB');
+    skyGrad.addColorStop(1, '#b8e0f7');
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Scrolling mountains
+    const mountainH = canvas.height * 0.3;
+    const bgX = -(progress * 0.4) % canvas.width;
+    if (IMG.mountains.complete) {
+        ctx.drawImage(IMG.mountains, bgX,            0, canvas.width, mountainH);
+        ctx.drawImage(IMG.mountains, bgX + canvas.width, 0, canvas.width, mountainH);
+    }
+
+    // Snow ground with subtle gradient
+    const snowGrad = ctx.createLinearGradient(0, mountainH, 0, canvas.height);
+    snowGrad.addColorStop(0, '#f0f8ff');
+    snowGrad.addColorStop(1, '#ddeeff');
+    ctx.fillStyle = snowGrad;
+    ctx.fillRect(0, mountainH, canvas.width, canvas.height - mountainH);
+
+    // Subtle snow texture lines
+    ctx.strokeStyle = 'rgba(200,220,240,0.4)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 8; i++) {
+        const lineY = mountainH + (canvas.height - mountainH) * (i / 8);
+        const lineX = -(progress * (0.3 + i * 0.05)) % (canvas.width * 2);
+        ctx.beginPath();
+        ctx.moveTo(lineX, lineY);
+        ctx.lineTo(lineX + canvas.width * 0.6, lineY + 2);
+        ctx.stroke();
+    }
+
+    // Draw obstacles
+    for (const ob of obstacles) drawObstacle(ob);
+
+    // Draw power-ups
+    for (const pu of powerups) drawPowerup(pu);
+
+    // Draw computer skiers
+    for (const sk of computerSkiers) {
+        if (IMG.skier.complete) {
+            ctx.drawImage(IMG.skier, sk.x, sk.y, sk.width, sk.height);
+        }
+    }
+
+    // Draw particles
+    for (const p of particles) {
+        ctx.globalAlpha = p.life / 40;
+        ctx.fillStyle   = p.color;
+        ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
+    }
+    ctx.globalAlpha = 1;
+
+    // Draw player
+    drawPlayer();
+
+    // Shield visual
+    if (shieldActive) {
+        const pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.008);
+        ctx.strokeStyle = `rgba(79,195,247,${0.6 + pulse * 0.4})`;
+        ctx.lineWidth   = 3;
+        ctx.shadowColor = '#4fc3f7';
+        ctx.shadowBlur  = 10 + pulse * 8;
+        ctx.beginPath();
+        ctx.arc(
+            playerX + PLAYER_SIZE / 2,
+            playerY + PLAYER_SIZE / 2,
+            PLAYER_SIZE * 0.72,
+            0, Math.PI * 2
+        );
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        updatePowerupHUD();
+    }
+
+    // Monster
+    if (monsterVisible && IMG.monster.complete) {
+        const mSize = GAME_CONFIG.MONSTER.MONSTER_SIZE;
+        // Slight bobbing
+        const bob = Math.sin(Date.now() * 0.006) * 4;
+        ctx.drawImage(IMG.monster, monsterX, monsterY + bob, mSize, mSize);
+    }
+
+    // Boost speed lines
+    if (boostActive) drawSpeedLines();
+}
+
+function drawPlayer() {
+    if (!playerImg || !playerImg.complete) return;
+    // Flicker when invincible from power-up
+    if (invincible && !shieldActive && Math.floor(Date.now() / 80) % 2 === 0) return;
+
+    // Snow spray when moving
+    if (keys.ArrowDown || keys.s) {
+        spawnSnowParticles(playerX + PLAYER_SIZE * 0.6, playerY + PLAYER_SIZE * 0.9);
+    }
+    ctx.drawImage(playerImg, playerX, playerY, PLAYER_SIZE, PLAYER_SIZE);
+}
+
+function drawObstacle(ob) {
+    if (ob.type === 'tree' && IMG.tree.complete) {
+        ctx.drawImage(IMG.tree, ob.x, ob.y, ob.width, ob.height);
+    } else if (ob.type === 'tree2' && IMG.tree2.complete) {
+        ctx.drawImage(IMG.tree2, ob.x, ob.y, ob.width, ob.height);
+    } else if (ob.type === 'treeAspen' && IMG.treeAspen.complete) {
+        ctx.drawImage(IMG.treeAspen, ob.x, ob.y, ob.width, ob.height);
+    } else if (ob.type === 'rock' && IMG.rock.complete) {
+        ctx.drawImage(IMG.rock, ob.x, ob.y, ob.width, ob.height);
+
+    // ── PIXEL-ART PROCEDURAL OBSTACLES ──
+    } else if (ob.type === 'snowdrift') {
+        drawSnowdrift(ob);
+    } else if (ob.type === 'gate') {
+        drawSlalomGate(ob);
+    } else if (ob.type === 'icepatch') {
+        drawIcePatch(ob);
+    }
+}
+
+function drawSnowdrift(ob) {
+    const { x, y, width, height } = ob;
+    const px = 8; // pixel block size
+    // Base mound in chunky pixel blocks
+    const blocks = [
+        // row 0 (bottom)
+        {c:0,r:0,w:10,h:2},
+        // row 1
+        {c:1,r:2,w:8,h:2},
+        // row 2
+        {c:2,r:4,w:6,h:2},
+        // top
+        {c:3,r:6,w:4,h:1},
+    ];
+    const colors = ['#d0e8f0', '#e8f4fc', '#f5faff', '#ffffff'];
+    blocks.forEach((b, i) => {
+        ctx.fillStyle = colors[i] || '#fff';
+        ctx.fillRect(
+            x + b.c * px,
+            y + height - (b.r + b.h) * px,
+            b.w * px,
+            b.h * px
+        );
     });
+    // Shadow
+    ctx.fillStyle = 'rgba(100,150,200,0.18)';
+    ctx.fillRect(x + px, y + height - px, width - px * 2, px);
+}
+
+function drawSlalomGate(ob) {
+    const { x, y, width, height, color } = ob;
+    const col = color || '#ff4444';
+    const poleW = 6, flagH = 18, flagW = 26;
+
+    // Left pole
+    ctx.fillStyle = col;
+    ctx.fillRect(x + 4, y, poleW, height);
+    // Right pole
+    ctx.fillRect(x + width - 10, y, poleW, height);
+
+    // Flag connecting them (chunky pixel style)
+    ctx.fillStyle = col;
+    ctx.fillRect(x + 4, y + 4, width - 14, flagH);
+    // Flag highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.fillRect(x + 4, y + 4, width - 14, 4);
+
+    // Pole base blocks
+    ctx.fillStyle = '#aaa';
+    ctx.fillRect(x,     y + height - 8, 16, 8);
+    ctx.fillRect(x + width - 16, y + height - 8, 16, 8);
+}
+
+function drawIcePatch(ob) {
+    const { x, y, width, height } = ob;
+    // Semi-transparent ice blue
+    ctx.globalAlpha = 0.45;
+    ctx.fillStyle = '#a8d8ea';
+    ctx.fillRect(x, y, width, height);
+    ctx.globalAlpha = 1;
+
+    // Pixel glint lines
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+    ctx.lineWidth = 2;
+    // Diagonal glint 1
+    ctx.beginPath();
+    ctx.moveTo(x + 10, y + 8);
+    ctx.lineTo(x + 30, y + 28);
+    ctx.stroke();
+    // Diagonal glint 2
+    ctx.beginPath();
+    ctx.moveTo(x + width - 20, y + 10);
+    ctx.lineTo(x + width - 5,  y + 25);
+    ctx.stroke();
+
+    // Border
+    ctx.strokeStyle = 'rgba(100,180,220,0.6)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x, y, width, height);
+
+    // Label
+    ctx.fillStyle = 'rgba(50,100,150,0.7)';
+    ctx.font = 'bold 11px monospace';
+    ctx.fillText('ICE', x + width/2 - 12, y + height/2 + 4);
+}
+
+function drawPowerup(pu) {
+    const now  = Date.now();
+    const bob  = Math.sin(now * 0.004 + pu.bobOffset) * 4;
+    const glow = 0.6 + 0.4 * Math.sin(now * 0.005 + pu.bobOffset);
+    const { x, y, size } = pu;
+    const cy = y + bob;
+
+    if (pu.type === 'shield') {
+        // Glowing shield icon
+        ctx.shadowColor = '#4fc3f7';
+        ctx.shadowBlur  = 12 * glow;
+        ctx.fillStyle   = `rgba(15,52,96,${0.85})`;
+        ctx.fillRect(x, cy, size, size);
+        ctx.strokeStyle = `rgba(79,195,247,${glow})`;
+        ctx.lineWidth   = 2;
+        ctx.strokeRect(x, cy, size, size);
+
+        // Shield shape (pixel)
+        ctx.fillStyle = `rgba(79,195,247,${glow})`;
+        const s = size * 0.55;
+        const sx = x + (size - s)/2;
+        const sy = cy + (size - s)/2 - 2;
+        ctx.beginPath();
+        ctx.moveTo(sx + s/2, sy);
+        ctx.lineTo(sx + s, sy + s * 0.35);
+        ctx.lineTo(sx + s, sy + s * 0.6);
+        ctx.lineTo(sx + s/2, sy + s);
+        ctx.lineTo(sx, sy + s * 0.6);
+        ctx.lineTo(sx, sy + s * 0.35);
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+    } else if (pu.type === 'boost') {
+        // Glowing star / lightning
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur  = 12 * glow;
+        ctx.fillStyle   = 'rgba(26,26,46,0.85)';
+        ctx.fillRect(x, cy, size, size);
+        ctx.strokeStyle = `rgba(255,215,0,${glow})`;
+        ctx.lineWidth   = 2;
+        ctx.strokeRect(x, cy, size, size);
+
+        // Lightning bolt pixel art
+        ctx.fillStyle = `rgba(255,215,0,${glow})`;
+        const bx = x + size * 0.3;
+        const by = cy + size * 0.1;
+        const bw = size * 0.4;
+        const bh = size * 0.8;
+        ctx.beginPath();
+        ctx.moveTo(bx + bw * 0.6, by);
+        ctx.lineTo(bx + bw * 0.1, by + bh * 0.5);
+        ctx.lineTo(bx + bw * 0.5, by + bh * 0.45);
+        ctx.lineTo(bx,            by + bh);
+        ctx.lineTo(bx + bw * 0.9, by + bh * 0.5);
+        ctx.lineTo(bx + bw * 0.5, by + bh * 0.55);
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    }
+}
+
+function drawSpeedLines() {
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctx.lineWidth   = 2;
+    for (let i = 0; i < 8; i++) {
+        const lx = Math.random() * canvas.width;
+        const ly = Math.random() * canvas.height;
+        ctx.beginPath();
+        ctx.moveTo(lx, ly);
+        ctx.lineTo(lx - 60 - Math.random() * 60, ly);
+        ctx.stroke();
+    }
+}
+
+// ═══════════════════════════════════════════════
+//  GAME OVER
+// ═══════════════════════════════════════════════
+function triggerGameOver() {
+    gameRunning = false;
+    clearSpawners();
+    obstacles = []; computerSkiers = []; powerups = [];
+
+    flashScreen('rgba(255,50,50,0.6)');
+    spawnCrashParticles(playerX + PLAYER_SIZE/2, playerY + PLAYER_SIZE/2, '#fff', 24);
+
+    updateHighScores(score);
+
+    const modeText = currentGameMode === GAME_MODES.MONSTER ? 'Yeti Mode' : 'Standard Mode';
+    let html = `${modeText}<br>Score: <strong>${score}</strong>`;
+
+    if (currentGameMode === GAME_MODES.ENDLESS) {
+        const scores = JSON.parse(localStorage.getItem('highScores') || '[]');
+        if (scores.length > 1 && scores[0].score === score) {
+            html += '<br><br>🏆 NEW HIGH SCORE!';
+        }
+    }
+
+    document.getElementById('finalScore').innerHTML = html;
+    backgroundMusic.pause(); backgroundMusic.currentTime = 0;
+    try { gameOverSound.play().catch(()=>{}); } catch(e) {}
+
+    const go = document.getElementById('gameOver');
+    go.style.opacity = '0';
+    go.style.display = 'block';
+    monsterTimerEl.style.display = 'none';
+    setTimeout(() => go.style.opacity = '1', 30);
+}
+
+// ═══════════════════════════════════════════════
+//  GAME LOOP
+// ═══════════════════════════════════════════════
+function gameLoop() {
+    if (!gameRunning) return;
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+
+// ═══════════════════════════════════════════════
+//  HIGH SCORES
+// ═══════════════════════════════════════════════
+function updateHighScores(newScore) {
+    if (currentGameMode !== GAME_MODES.ENDLESS) return;
+    let scores = JSON.parse(localStorage.getItem('highScores') || '[]');
+    scores.push({ score: newScore, date: new Date().toLocaleDateString(), character: selectedCharacter });
     scores.sort((a, b) => b.score - a.score);
-    scores = scores.slice(0, 10); // Keep top 10 scores
+    scores = scores.slice(0, 10);
     localStorage.setItem('highScores', JSON.stringify(scores));
-    
-    // Update top 3 display
     updateTopThreeDisplay();
 }
 
 function updateTopThreeDisplay() {
     const scores = JSON.parse(localStorage.getItem('highScores') || '[]');
-    const topThree = scores.slice(0, 3);
-    const topThreeElement = document.getElementById('topThreeScores');
-    
-    if (topThree.length === 0) {
-        topThreeElement.innerHTML = '<div class="score-entry">No scores yet!</div>';
+    const top3   = scores.slice(0, 3);
+    const el     = document.getElementById('topThreeScores');
+    if (!top3.length) {
+        el.innerHTML = '<div class="score-entry">No scores yet — be first!</div>';
         return;
     }
-    
-    topThreeElement.innerHTML = topThree.map((score, index) => `
-        <div class="score-entry">
-            ${index + 1}. ${score.score} points
-            <small>(${new Date(score.date).toLocaleDateString()})</small>
-        </div>
-    `).join('');
+    const medals = ['🥇','🥈','🥉'];
+    el.innerHTML = top3.map((s, i) =>
+        `<div class="score-entry">${medals[i]} ${s.score} pts <small style="opacity:0.6">(${s.date})</small></div>`
+    ).join('');
 }
 
-    function showHighScores() {
-        const scores = JSON.parse(localStorage.getItem('highScores') || '[]');
-        const scoreList = document.getElementById('scoreList');
-        scoreList.innerHTML = scores.map((score, index) => 
-            `<div>${index + 1}. Score: ${score.score} - ${score.date}</div>`
-        ).join('');
-        document.getElementById('highScores').style.display = 'flex';
-    }
+// ═══════════════════════════════════════════════
+//  RESIZE
+// ═══════════════════════════════════════════════
+function resizeCanvas() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
 
-    function closeHighScores() {
-        document.getElementById('highScores').style.display = 'none';
-    }
-
-    document.querySelectorAll('#characterSelect button').forEach(button => {
-      button.addEventListener('click', playSelectSound);});
-
-    // Add this after your audio element declarations
-    document.addEventListener('DOMContentLoaded', () => {
-        // Initialize audio elements
-        selectSound.load();
-        backgroundMusic.load();
-        gameOverSound.load();
-        
-        // Ensure initial state
-        scoreDisplay.style.display = 'none';
-        document.getElementById('titleScreen').style.display = 'flex';
-        document.getElementById('startButton').disabled = true;
-        
-        // Initialize top 3 scores display
-        updateTopThreeDisplay();
-    });
-
-    // Add this helper function for warnings
-    function showWarning(message) {
-        const warning = document.getElementById('warningMessage') || createWarningElement();
-        warning.textContent = message;
-        warning.style.opacity = 1;
-        setTimeout(() => warning.style.opacity = 0, 400);
-    }
-
-    // Add this helper function to create warning element
-    function createWarningElement() {
-        const warning = document.createElement('div');
-        warning.id = 'warningMessage';
-        document.body.appendChild(warning);
-        return warning;
-    }
-  </script>
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+    selectSound.load();
+    backgroundMusic.load();
+    gameOverSound.load();
+    scoreDisplay.style.display = 'none';
+    updateTopThreeDisplay();
+});
+</script>
 </body>
 </html>
+
